@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PieChartData } from './pie-chart/pie-chart-data';
 import { C2cDataService } from './c2c-data.service';
+import { Outing } from './outing';
 
 @Component({
   selector: 'app-root',
@@ -9,8 +10,29 @@ import { C2cDataService } from './c2c-data.service';
   providers: [ C2cDataService ]
 })
 export class AppComponent implements OnInit {
-  data: PieChartData[];
-  selectedData: PieChartData;
+  pieChartData: PieChartData[] = [
+    {
+      id: 1,
+      name: 'test1',
+      data: [
+        ['a', 1],
+        ['b', 3],
+        ['c', 5]
+      ]
+    },
+    {
+      id: 2,
+      name: 'test2',
+      data: [
+        ['c', 1],
+        ['d', 5],
+        ['e', 5]
+      ]
+    }
+  ];
+  selectedPieChartData: PieChartData;
+  data: Outing[];
+  selectedData: Outing;
 
   constructor(private c2cDataService: C2cDataService) { }
 
@@ -18,11 +40,18 @@ export class AppComponent implements OnInit {
     this.getC2cData();
   }
 
-  getC2cData(): void {
-    this.c2cDataService.getData().then(data => this.data = data);
+  private getC2cData(): void {
+    if (this.data) {
+      this.data.length = 0;
+    } else {
+      this.data = [];
+    }
+    this.c2cDataService.getObservableData().subscribe(data => {
+      this.data.push(...data);
+    });
   }
 
   onSelect(data: PieChartData): void {
-    this.selectedData = data;
+    this.selectedPieChartData = data;
   }
 }

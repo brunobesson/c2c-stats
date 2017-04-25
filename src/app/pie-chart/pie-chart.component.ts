@@ -3,7 +3,7 @@ import { PieChartData } from './pie-chart-data';
 import * as d3 from 'd3';
 
 @Component({
-  selector: 'pie-chart',
+  selector: 'app-pie-chart',
   templateUrl: './pie-chart.component.html',
   styleUrls: ['./pie-chart.component.css']
 })
@@ -13,8 +13,8 @@ export class PieChartComponent implements OnInit, OnChanges {
   private chart: any;
   private xScale: any;
   private yScale: any;
-  private height: number = 400;
-  private width: number = 400;
+  private height = 400;
+  private width = 400;
 
   constructor() { }
 
