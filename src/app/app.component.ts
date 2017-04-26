@@ -41,13 +41,17 @@ export class AppComponent implements OnInit {
   }
 
   private getC2cData(): void {
-    if (this.data) {
-      this.data.length = 0;
-    } else {
-      this.data = [];
-    }
+    this.data = [];
     this.c2cDataService.getObservableData().subscribe(data => {
-      this.data.push(...data);
+      this.data = this.data.concat(...data);
+      this.data.sort((o1, o2) => Date.parse(o1.date_start) - Date.parse(o2.date_start));
+    },
+    error => {
+      // FIXME
+    },
+    () => {
+      console.log('size: ' + this.data.length);
+      // this.data = tmpData;
     });
   }
 

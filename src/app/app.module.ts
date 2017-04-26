@@ -8,11 +8,15 @@ import 'hammerjs';
 
 import { AppComponent } from './app.component';
 import { PieChartComponent } from './pie-chart/pie-chart.component';
+import { RangesChartComponent } from './ranges-chart/ranges-chart.component';
+import { ElevationChartComponent } from './elevation-chart/elevation-chart.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    PieChartComponent
+    PieChartComponent,
+    RangesChartComponent,
+    ElevationChartComponent
   ],
   imports: [
     BrowserModule,

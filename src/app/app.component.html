@@ -25,10 +25,9 @@
       <md-option *ngFor="let datum of pieChartData" [value]="datum.id" (click)="onSelect(datum)">{{datum.name}}</md-option>
     </md-select>
     <app-pie-chart [data]="selectedPieChartData" *ngIf="selectedPieChartData"></app-pie-chart>
+    <app-elevation-chart [outings]="data"></app-elevation-chart>
+    <app-ranges-chart [outings]="data"></app-ranges-chart>
   </md-card>
-  <ul>
-    <li *ngFor="let outing of data, let i = index">{{i}} - {{outing.document_id}} {{outing.date_start}}</li>
-  </ul>
 
   <span class="done">
     <button md-fab>

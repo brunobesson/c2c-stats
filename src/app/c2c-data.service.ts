@@ -22,14 +22,15 @@ export class C2cDataService {
                const total = response.json().total as number;
                const offsets = Array<number>(Math.floor(total / 30)).fill(0).map((value, index) => 30 * (index + 1));
                offsets.forEach(offset => {
-                 this.http.get(this.c2curl + '&offest=' + offset)
-                          .do(response2 => console.log(offset))
+                 this.http.get(this.c2curl + '&offset=' + offset)
                           .subscribe(response2 => emitter.next(response2.json().documents as Outing[]));
                });
+//                emitter.complete();
              });
     return observable;
   }
 
+  // FIXME remove below
   getData(): Promise<Outing[]> {
     return Promise.resolve(this.http.get(this.c2curl)
                                     .toPromise()
