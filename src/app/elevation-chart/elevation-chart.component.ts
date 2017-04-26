@@ -3,7 +3,6 @@ import * as d3 from 'd3';
 import { ElevationChartData, ElevationCoords } from './elevation-chart-data';
 import { Outing } from '../outing';
 import { Area } from '../area';
-import * as moment from 'moment';
 
 @Component({
   selector: 'app-elevation-chart',
@@ -12,6 +11,8 @@ import * as moment from 'moment';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ElevationChartComponent implements OnInit, OnChanges {
+  private static readonly referenceYear = 2017;
+
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() outings: Outing[];
   private data: ElevationChartData[] = [{
@@ -33,7 +34,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
   private yAxis: any;
   private colorScale = d3.scaleOrdinal(d3.schemeCategory10);
   private height = 400;
-  private width = 400;
+  private width = 800;
 
   constructor() { }
 
@@ -77,6 +78,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
       outings.forEach(outing => {
         // FIXME handle multi day
         const date = parseTime(outing.date_start);
+        date.setFullYear(ElevationChartComponent.referenceYear);
         const elevation = outing.height_diff_up;
         values.push({
           date,
@@ -92,7 +94,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
               });
               return acc;
             }, [{
-              date: moment('1970-01-01').toDate(), // FIXME
+              date: parseTime(ElevationChartComponent.referenceYear + '-01-01'), // FIXME rather the date of first day
               elevation: 0
             }]);
 
@@ -116,7 +118,9 @@ export class ElevationChartComponent implements OnInit, OnChanges {
     this.chart = svg.append('g')
       .attr('transform', 'translate(40,40)');
 
-    this.xScale = d3.scaleLinear().domain([0, 366]).rangeRound([0, this.width]);
+    this.xScale = d3.scaleTime().domain([new Date(ElevationChartComponent.referenceYear, 0, 1),
+                                         new Date(ElevationChartComponent.referenceYear, 11, 31)])
+                                .rangeRound([0, this.width]);
     this.yScale = d3.scaleLinear().range([this.height, 0]);
     this.yAxis = d3.axisLeft(this.yScale);
 
@@ -126,7 +130,12 @@ export class ElevationChartComponent implements OnInit, OnChanges {
     this.chart.append('g')
               .attr('class', 'x axis')
               .attr('transform', `translate(0,${this.height})`)
-              .call(d3.axisBottom(this.xScale));
+              .call(d3.axisBottom(this.xScale)/*.ticks(d3.timeMonths)*/.tickFormat(d3.timeFormat('%B')))
+
+              .selectAll('.tick text')
+              .style('text-anchor', 'start')
+              .attr('x', 6)
+              .attr('y', 6);
   }
 
   private updateChart() {
@@ -142,7 +151,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
     const lines = this.chart.selectAll('.line').data(this.data);
 
     const line = d3.line<ElevationCoords>()
-      .x(d => this.xScale(moment(d.date).dayOfYear()))
+      .x(d => this.xScale(d.date))
       .y(d => this.yScale(d.elevation));
     lines.enter().append('path')
       .attr('class', 'line')
