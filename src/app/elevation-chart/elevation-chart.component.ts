@@ -14,24 +14,12 @@ export class ElevationChartComponent implements OnInit, OnChanges {
 
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() outings: Outing[];
-  private data: ElevationChartData[] = [{
-    year: 1,
-    values: [
-      {
-        date: new Date(),
-        elevation: 2
-      },
-      {
-        date: new Date(),
-        elevation: 5
-      }
-    ]
-  }];
+  private data: ElevationChartData[] = [];
   private chart: any;
   private xScale: any;
   private yScale: any;
   private yAxis: any;
-  private colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+  private colorScale = d3.scaleOrdinal<number, string>(d3.schemeCategory10);
   private height = 400;
   private width = 800;
 
@@ -156,7 +144,6 @@ export class ElevationChartComponent implements OnInit, OnChanges {
                                                     .reduce((a, b) => Math.max(a, b), 0));
     this.yScale.domain([0, Math.max(...ranges)]);
     this.chart.selectAll('.y.axis').call(this.yAxis);
-    console.log(this.yScale.domain());
 
     const lines = this.chart.selectAll('.line').data(this.data);
 
@@ -166,12 +153,13 @@ export class ElevationChartComponent implements OnInit, OnChanges {
     lines.enter().append('path')
       .attr('class', 'line')
       .attr('fill', 'none')
-      .attr('stroke', (d: ElevationChartData) => this.colorScale(d.year.toString()))
+      .attr('stroke', (d: ElevationChartData) => this.colorScale(d.year))
       .attr('stroke-linejoin', 'round')
       .attr('stroke-linecap', 'round')
       .attr('stroke-width', 1.5)
 
       .merge(lines)
+      .attr('stroke', (d: ElevationChartData) => this.colorScale(d.year))
       .attr('d', (d: ElevationChartData) => line(d.values));
     lines.exit().remove();
   }
