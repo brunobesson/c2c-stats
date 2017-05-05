@@ -15,10 +15,10 @@ export class ElevationChartComponent implements OnInit, OnChanges {
   @ViewChild('chart') private chartContainer: ElementRef;
   @Input() outings: Outing[];
   private data: ElevationChartData[] = [];
-  private chart: any;
-  private xScale: any;
-  private yScale: any;
-  private yAxis: any;
+  private chart: d3.Selection<SVGGElement, ElevationChartData, HTMLElement, any>;
+  private xScale: d3.ScaleTime<number, number>;
+  private yScale: d3.ScaleLinear<number, number>;
+  private yAxis: d3.Axis<number | { valueOf(): number }>;
   private colorScale = d3.scaleOrdinal<number, string>(d3.schemeCategory10);
   private height = 400;
   private width = 800;
@@ -71,7 +71,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
         const elevation = outing.height_diff_up;
         values.push({
           date: dateStart,
-          elevation
+          elevation,
         });
       });
       values =
@@ -84,16 +84,16 @@ export class ElevationChartComponent implements OnInit, OnChanges {
               const elevation = outing.height_diff_up;
               acc.push({
                 date: dateStart,
-                elevation: acc[acc.length - 1].elevation
+                elevation: acc[acc.length - 1].elevation,
               });
               acc.push({
                 date: dateEnd,
-                elevation: acc[acc.length - 1].elevation + elevation
+                elevation: acc[acc.length - 1].elevation + elevation,
               });
               return acc;
             }, [{
-              date: parseTime(ElevationChartComponent.referenceYear + '-01-01'), // FIXME rather the date of first day
-              elevation: 0
+              date: parseTime(ElevationChartComponent.referenceYear + '-01-01'),
+              elevation: 0,
             }]);
 
       lines.set(year, values);
@@ -108,12 +108,12 @@ export class ElevationChartComponent implements OnInit, OnChanges {
   }
 
   private createChart() {
-    const element = this.chartContainer.nativeElement;
-    const svg = d3.select(element).append('svg')
+    const element: string = this.chartContainer.nativeElement; // FIXME
+    const svg = d3.select<SVGSVGElement, ElevationChartData>(element).append('svg')
       .attr('width', this.width + 60)
       .attr('height', this.height + 60);
 
-    this.chart = svg.append('g')
+    this.chart = svg.append<SVGGElement>('g')
       .attr('transform', 'translate(40,40)');
 
     this.xScale = d3.scaleTime().domain([new Date(ElevationChartComponent.referenceYear, 0, 1),
@@ -134,6 +134,8 @@ export class ElevationChartComponent implements OnInit, OnChanges {
               .style('text-anchor', 'start')
               .attr('x', 6)
               .attr('y', 6);
+
+    this.chart.append('g').attr('class', 'lines');
   }
 
   private updateChart() {
@@ -145,22 +147,24 @@ export class ElevationChartComponent implements OnInit, OnChanges {
     this.yScale.domain([0, Math.max(...ranges)]);
     this.chart.selectAll('.y.axis').call(this.yAxis);
 
-    const lines = this.chart.selectAll('.line').data(this.data);
+    const wrap = this.chart.selectAll('g.lines').data([this.data]);
 
+    const lines = wrap.selectAll<SVGPathElement, ElevationChartData>('.line')
+      .data<ElevationChartData>(d => d, d => d.year.toString());
     const line = d3.line<ElevationCoords>()
       .x(d => this.xScale(d.date))
       .y(d => this.yScale(d.elevation));
     lines.enter().append('path')
       .attr('class', 'line')
+      .attr('data-year', d => d.year)
       .attr('fill', 'none')
-      .attr('stroke', (d: ElevationChartData) => this.colorScale(d.year))
+      .attr('stroke', d => this.colorScale(d.year))
       .attr('stroke-linejoin', 'round')
       .attr('stroke-linecap', 'round')
       .attr('stroke-width', 1.5)
 
       .merge(lines)
-      .attr('stroke', (d: ElevationChartData) => this.colorScale(d.year))
-      .attr('d', (d: ElevationChartData) => line(d.values));
+      .attr('d', d => line(d.values));
     lines.exit().remove();
   }
 }
