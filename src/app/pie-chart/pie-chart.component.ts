@@ -62,10 +62,10 @@ export class PieChartComponent implements OnInit, OnChanges {
       .style('fill', 'red')
 
       .merge(bars)
-      .attr('x', d => this.xScale(d[0]))
-      .attr('y', d => this.yScale(d[1]))
+      .attr('x', (d: (string | number)[]) => this.xScale(d[0]))
+      .attr('y', (d: (string | number)[]) => this.yScale(d[1]))
       .attr('width', this.xScale.bandwidth())
-      .attr('height', d => this.height - this.yScale(d[1]));
+      .attr('height', (d: (string | number)[]) => this.height - this.yScale(d[1]));
 
     bars.exit().remove();
   }

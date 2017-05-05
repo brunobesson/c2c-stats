@@ -3,7 +3,6 @@ import { Http } from '@angular/http';
 import { Outing } from './outing';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
-import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/toPromise';
 
 @Injectable()
@@ -15,7 +14,7 @@ export class C2cDataService {
 
   getObservableData(): Observable<Outing[]> {
     let emitter: Observer<Outing[]>;
-    const observable = Observable.create(obs => emitter = obs);
+    const observable = Observable.create((obs: Observer<Outing[]>) => emitter = obs);
     this.http.get(this.c2curl)
              .subscribe(response => {
                emitter.next(response.json().documents as Outing[]);

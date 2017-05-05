@@ -54,7 +54,7 @@ export class RangesChartComponent implements OnInit, OnChanges {
     if (!this.outings.length) {
       return;
     }
-    const flatten = (acc: Area[], val: Area[] | Area) => acc.concat(
+    const flatten = (acc: Area[], val: Area[] | Area): Array<Area> => acc.concat(
         Array.isArray(val) ? val.reduce(flatten, []) : val
       );
     const countInMap = (acc: Map<string, number>, val: string) => {
@@ -65,7 +65,6 @@ export class RangesChartComponent implements OnInit, OnChanges {
       }
       return acc;
     };
-    const unique = (x, i, a) => a.indexOf(x) === i;
     const other: Area = {
       document_id: 0,
       area_type: 'range',
@@ -136,10 +135,10 @@ export class RangesChartComponent implements OnInit, OnChanges {
       .style('fill', 'red')
 
       .merge(bars)
-      .attr('x', d => this.xScale(d[0]))
-      .attr('y', d => this.yScale(d[1]))
+      .attr('x', (d: (string | number)[]) => this.xScale(d[0]))
+      .attr('y', (d: (string | number)[]) => this.yScale(d[1]))
       .attr('width', this.xScale.bandwidth())
-      .attr('height', d => this.height - this.yScale(d[1]));
+      .attr('height', (d: (string | number)[]) => this.height - this.yScale(d[1]));
 
     bars.exit().remove();
   }

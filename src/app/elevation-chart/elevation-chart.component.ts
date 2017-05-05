@@ -2,7 +2,6 @@ import { Component, OnChanges, OnInit, Input, ViewChild, ElementRef, SimpleChang
 import * as d3 from 'd3';
 import { ElevationChartData, ElevationCoords } from './elevation-chart-data';
 import { Outing } from '../outing';
-import { Area } from '../area';
 
 @Component({
   selector: 'app-elevation-chart',
@@ -77,20 +76,31 @@ export class ElevationChartComponent implements OnInit, OnChanges {
       let values: Array<ElevationCoords> = [];
       outings.forEach(outing => {
         // FIXME handle multi day
-        const date = parseTime(outing.date_start);
-        date.setFullYear(ElevationChartComponent.referenceYear);
+        const dateStart = parseTime(outing.date_start);
+        const dateEnd = parseTime(outing.date_end);
+        dateStart.setFullYear(ElevationChartComponent.referenceYear);
+        dateEnd.setFullYear(ElevationChartComponent.referenceYear);
         const elevation = outing.height_diff_up;
         values.push({
-          date,
+          date: dateStart,
           elevation
         });
       });
       values =
-      values.sort((v1, v2) => v1.date.getTime() - v2.date.getTime())
-            .reduce((acc: ElevationCoords[], val: ElevationCoords) => {
+      outings.sort((o1, v2) => parseTime(o1.date_start).getTime() - parseTime(v2.date_start).getTime())
+            .reduce((acc: ElevationCoords[], outing: Outing) => {
+              const dateStart = parseTime(outing.date_start);
+              const dateEnd = parseTime(outing.date_end);
+              dateStart.setFullYear(ElevationChartComponent.referenceYear);
+              dateEnd.setFullYear(ElevationChartComponent.referenceYear);
+              const elevation = outing.height_diff_up;
               acc.push({
-                date: val.date,
-                elevation: acc[acc.length - 1].elevation + val.elevation
+                date: dateStart,
+                elevation: acc[acc.length - 1].elevation
+              });
+              acc.push({
+                date: dateEnd,
+                elevation: acc[acc.length - 1].elevation + elevation
               });
               return acc;
             }, [{
@@ -130,7 +140,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
     this.chart.append('g')
               .attr('class', 'x axis')
               .attr('transform', `translate(0,${this.height})`)
-              .call(d3.axisBottom(this.xScale)/*.ticks(d3.timeMonths)*/.tickFormat(d3.timeFormat('%B')))
+              .call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat('%B')))
 
               .selectAll('.tick text')
               .style('text-anchor', 'start')
@@ -139,7 +149,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
   }
 
   private updateChart() {
-    const flatten = (acc: number[], val: number[] | number) => acc.concat(
+    const flatten = (acc: number[], val: number[] | number): number[] => acc.concat(
       Array.isArray(val) ? val.reduce(flatten, []) : val
     );
     const ranges = this.data.map(line => line.values.map(value => value.elevation)
@@ -156,13 +166,13 @@ export class ElevationChartComponent implements OnInit, OnChanges {
     lines.enter().append('path')
       .attr('class', 'line')
       .attr('fill', 'none')
-      .attr('stroke', d => this.colorScale(d.year))
+      .attr('stroke', (d: ElevationChartData) => this.colorScale(d.year.toString()))
       .attr('stroke-linejoin', 'round')
       .attr('stroke-linecap', 'round')
       .attr('stroke-width', 1.5)
 
       .merge(lines)
-      .attr('d', d => line(d.values));
+      .attr('d', (d: ElevationChartData) => line(d.values));
     lines.exit().remove();
   }
 }
