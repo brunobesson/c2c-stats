@@ -45,7 +45,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
 
   private outingsToData() {
     if (!this.outings.length) {
-      return;
+      this.data = [];
     }
 
     const outingsForYear = this.outings.filter(outing => outing.height_diff_up)

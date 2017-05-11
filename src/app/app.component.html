@@ -21,6 +21,13 @@
   </md-card>
 
   <md-card>
+    <md-input-container>
+      <input mdInput type="number" placeholder="Enter user ID" [formControl]="userIdControl">
+    </md-input-container>
+    <md-chip-list>
+      <md-chip>{{userId}}</md-chip>
+      <md-chip selected="true" color="accent">{{data.length}}</md-chip>
+    </md-chip-list>
     <md-select placeholder="Dataset">
       <md-option *ngFor="let datum of pieChartData" [value]="datum.id" (click)="onSelect(datum)">{{datum.name}}</md-option>
     </md-select>

@@ -4,24 +4,28 @@ import { Outing } from './outing';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
 import 'rxjs/add/operator/toPromise';
+import 'rxjs/add/observable/from';
 
 @Injectable()
 export class C2cDataService {
 
-  c2curl = 'https://api.camptocamp.org/outings?u=113594';
+  c2curl = 'https://api.camptocamp.org/outings?u=';
 
   constructor(private http: Http) { }
 
-  getObservableData(): Observable<Outing[]> {
+  getObservableData(userId: number): Observable<Outing[]> {
+    if (userId === null) {
+      return Observable.from<Outing[]>([]);
+    }
     let emitter: Observer<Outing[]>;
     const observable = Observable.create((obs: Observer<Outing[]>) => emitter = obs);
-    this.http.get(this.c2curl)
+    this.http.get(this.c2curl + userId)
              .subscribe(response => {
                emitter.next(response.json().documents as Outing[]);
                const total = response.json().total as number;
                const offsets = Array<number>(Math.floor(total / 30)).fill(0).map((value, index) => 30 * (index + 1));
                offsets.forEach(offset => {
-                 this.http.get(this.c2curl + '&offset=' + offset)
+                 this.http.get(this.c2curl + userId + '&offset=' + offset)
                           .subscribe(response2 => emitter.next(response2.json().documents as Outing[]));
                });
 //                emitter.complete();
@@ -30,8 +34,8 @@ export class C2cDataService {
   }
 
   // FIXME remove below
-  getData(): Promise<Outing[]> {
-    return Promise.resolve(this.http.get(this.c2curl)
+  getData(userId: number): Promise<Outing[]> {
+    return Promise.resolve(this.http.get(`${this.c2curl}${userId}`)
                                     .toPromise()
                                     .then(response => response.json().documents as Outing[])
                                     .catch(this.handleError));
