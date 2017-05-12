@@ -18,13 +18,11 @@
   </md-card>
 
   <md-card>
-    <md-card-title>Total accumulated elevation</md-card-title>
-    <app-elevation-chart [outings]="data"></app-elevation-chart>
+    <md-card-header>
+      <md-card-title>Total accumulated elevation</md-card-title>
+    </md-card-header>
+    <md-card-content>
+      <app-elevation-chart [outings]="data"></app-elevation-chart>
+    </md-card-content>
   </md-card>
-
-  <span class="done">
-    <button md-fab>
-      <md-icon>check circle</md-icon>
-    </button>
-  </span>
 </div>
