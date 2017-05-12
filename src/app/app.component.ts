@@ -15,6 +15,7 @@ export class AppComponent implements OnInit {
   userId: number;
   userIdControl = new FormControl();
   data: Outing[] = [];
+  dataStatus = 'invalid';
 
   constructor(private c2cDataService: C2cDataService) { }
 
@@ -30,10 +31,12 @@ export class AppComponent implements OnInit {
 
   private getC2cData(userId: number): void {
     this.data = [];
+    this.dataStatus = 'loading';
     this.c2cDataService.getData(userId).subscribe(data => {
       if (data.status === 'completed') {
         this.data = data.outings;
       }
+      this.dataStatus = data.status;
     },
     error => {
       // TODO

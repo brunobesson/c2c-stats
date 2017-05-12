@@ -12,7 +12,7 @@ import { Outing } from '../outing';
 export class ElevationChartComponent implements OnInit, OnChanges {
   private static readonly referenceYear = 2017;
 
-  @ViewChild('chart') private chartContainer: ElementRef;
+  @ViewChild('elevationChart') private chartContainer: ElementRef;
   @Input() outings: Outing[];
   private data: ElevationChartData[] = [];
   private chart: d3.Selection<SVGGElement, ElevationChartData, HTMLElement, any>;
@@ -108,8 +108,8 @@ export class ElevationChartComponent implements OnInit, OnChanges {
   }
 
   private createChart() {
-    const element: string = this.chartContainer.nativeElement; // FIXME
-    const svg = d3.select<SVGSVGElement, ElevationChartData>(element).append('svg')
+    const element: string = this.chartContainer.nativeElement;
+    const svg = d3.select<HTMLDivElement, ElevationChartData>(element).append('svg')
       .attr('width', this.width + 60)
       .attr('height', this.height + 60);
 

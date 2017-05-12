@@ -12,12 +12,18 @@
     <md-input-container>
       <input mdInput type="number" placeholder="Enter user ID" [formControl]="userIdControl">
     </md-input-container>
-    <md-chip-list>
+    <md-spinner *ngIf="dataStatus == 'loading'"></md-spinner>
+    <div [ngSwitch]="dataStatus">
+      <p *ngSwitchCase="'completed'">toto</p>
+      <p *ngSwitchCase="'invalid'">invalid</p>
+      <p *ngSwitchCase="'failed'">failed</p>
+    </div>
+    <md-chip-list *ngIf="dataStatus == 'completed'">
       <md-chip selected="true" color="accent">{{data.length}} outings</md-chip>
     </md-chip-list>
   </md-card>
 
-  <md-card>
+  <md-card *ngIf="dataStatus == 'completed'">
     <md-card-header>
       <md-card-title>Total accumulated elevation</md-card-title>
     </md-card-header>
