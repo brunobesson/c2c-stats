@@ -1,48 +1,101 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { Http, Response } from '@angular/http';
 import { Outing } from './outing';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
-import { Observer } from 'rxjs/Observer';
+import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/observable/from';
+import { C2cData } from './c2c-data';
+
+const c2curl = 'https://api.camptocamp.org/outings?u=';
 
 @Injectable()
 export class C2cDataService {
 
-  c2curl = 'https://api.camptocamp.org/outings?u=';
-
   constructor(private http: Http) { }
 
-  getObservableData(userId: number): Observable<Outing[]> {
-    if (userId === null) {
-      return Observable.from<Outing[]>([]);
+  getData(userId: number): Observable<C2cData> {
+    if (!userId) {
+      return Observable.of({
+        status: 'invalid',
+        outings: []
+      });
     }
-    let emitter: Observer<Outing[]>;
-    const observable = Observable.create((obs: Observer<Outing[]>) => emitter = obs);
-    this.http.get(this.c2curl + userId)
-             .subscribe(response => {
-               emitter.next(response.json().documents as Outing[]);
-               const total = response.json().total as number;
-               const offsets = Array<number>(Math.floor(total / 30)).fill(0).map((value, index) => 30 * (index + 1));
-               offsets.forEach(offset => {
-                 this.http.get(this.c2curl + userId + '&offset=' + offset)
-                          .subscribe(response2 => emitter.next(response2.json().documents as Outing[]));
-               });
-//                emitter.complete();
-             });
-    return observable;
+    const c2cdata = <BehaviorSubject<C2cData>> new BehaviorSubject({
+      status: 'loading',
+      outings: []
+    });
+    const subscriptions: Subscription[] = [];
+    this.http.get(c2curl + userId)
+      .subscribe(response => {
+        c2cdata.next(this.initData(response, userId));
+        const total = c2cdata.getValue().total;
+        if (total > c2cdata.getValue().outings.length) {
+          const offsets = Array<number>(Math.floor(total / 30)).fill(0).map((value, index) => 30 * (index + 1));
+          offsets.forEach(offset => {
+            const subscription = this.http.get(c2curl + userId + '&offset=' + offset)
+              .subscribe(response2 => {
+                c2cdata.next(this.updateData(c2cdata.getValue(), response2));
+                },
+              error => c2cdata.next(this.handleError(subscriptions, userId))
+            );
+            subscriptions.push(subscription);
+          });
+        }
+    },
+    error => c2cdata.next(this.handleError(subscriptions, userId)));
+    return c2cdata.asObservable();
   }
 
-  // FIXME remove below
-  getData(userId: number): Promise<Outing[]> {
-    return Promise.resolve(this.http.get(`${this.c2curl}${userId}`)
-                                    .toPromise()
-                                    .then(response => response.json().documents as Outing[])
-                                    .catch(this.handleError));
+  private handleError(subscriptions: Subscription[], userId: number): C2cData {
+    subscriptions.forEach(subscription => {
+      if (!subscription.closed) {
+        subscription.unsubscribe()
+      }
+    })
+    return {
+      user_id: userId,
+      status: 'failed',
+      outings: []
+    };
   }
 
-  handleError(error: any): Promise<any> {
-    console.error('An error occurred', error); // FIXME
-    return Promise.reject(error.message || error);
+  private initData(response: Response, userId: number): C2cData {
+    const newOutings = (response.json().documents as Outing[]);
+    const total = response.json().total as number;
+    if (total === newOutings.length) {
+      return {
+        user_id: userId,
+        status: 'completed',
+        outings: newOutings
+      };
+    } else {
+      return {
+        user_id: userId,
+        status: 'loading',
+        total,
+        outings: newOutings
+      };
+    }
+  }
+
+  private updateData(data: C2cData, response: Response): C2cData {
+    const newOutings = (response.json().documents as Outing[]);
+    const total = response.json().total as number;
+
+    const updatedOutings = data.outings
+      .concat(...newOutings)
+      .sort((o1, o2) => Date.parse(o1.date_start) - Date.parse(o2.date_start))
+
+    let updatedData = Object.assign({}, data, {
+      outings: updatedOutings
+    });
+    if (total === updatedOutings.length) {
+      updatedData = Object.assign({}, data, {
+      status: 'completed'
+      })
+    }
+    return updatedData;
   }
 }

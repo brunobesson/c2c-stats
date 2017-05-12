@@ -1,12 +1,7 @@
 <div>
   <md-toolbar color="primary">
     <span><md-icon>mood</md-icon></span>
-
-    <span>Yay, Material in Angular 2!</span>
-
-    <button md-icon-button [md-menu-trigger-for]="menu">
-      <md-icon>more_vert</md-icon>
-    </button>
+    <span>C2C user statistics</span>
   </md-toolbar>
   <md-menu x-position="before" #menu="mdMenu">
     <button md-menu-item>Option 1</button>
@@ -14,26 +9,17 @@
   </md-menu>
 
   <md-card>
-    <button md-button>All</button>
-    <button md-raised-button>Of</button>
-    <button md-raised-button color="primary">The</button>
-    <button md-raised-button color="accent">Buttons</button>
-  </md-card>
-
-  <md-card>
     <md-input-container>
       <input mdInput type="number" placeholder="Enter user ID" [formControl]="userIdControl">
     </md-input-container>
     <md-chip-list>
-      <md-chip>{{userId}}</md-chip>
-      <md-chip selected="true" color="accent">{{data.length}}</md-chip>
+      <md-chip selected="true" color="accent">{{data.length}} outings</md-chip>
     </md-chip-list>
-    <md-select placeholder="Dataset">
-      <md-option *ngFor="let datum of pieChartData" [value]="datum.id" (click)="onSelect(datum)">{{datum.name}}</md-option>
-    </md-select>
-    <app-pie-chart [data]="selectedPieChartData" *ngIf="selectedPieChartData"></app-pie-chart>
+  </md-card>
+
+  <md-card>
+    <md-card-title>Total accumulated elevation</md-card-title>
     <app-elevation-chart [outings]="data"></app-elevation-chart>
-    <app-ranges-chart [outings]="data"></app-ranges-chart>
   </md-card>
 
   <span class="done">
