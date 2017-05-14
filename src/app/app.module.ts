@@ -8,11 +8,13 @@ import 'hammerjs';
 
 import { AppComponent } from './app.component';
 import { ElevationChartComponent } from './elevation-chart/elevation-chart.component';
+import { AreasChartComponent } from './areas-chart/areas-chart.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ElevationChartComponent
+    ElevationChartComponent,
+    AreasChartComponent
   ],
   imports: [
     BrowserModule,

@@ -16,6 +16,7 @@ export class AppComponent implements OnInit {
   userIdControl = new FormControl();
   data: Outing[] = [];
   dataStatus = 'invalid';
+  showCharts = false;
 
   constructor(private c2cDataService: C2cDataService) { }
 
@@ -24,22 +25,19 @@ export class AppComponent implements OnInit {
       .debounceTime(500)
       .distinctUntilChanged()
       .subscribe(newValue => {
-        this.userId = newValue;
         this.getC2cData(newValue);
       });
   }
 
   private getC2cData(userId: number): void {
-    this.data = [];
     this.dataStatus = 'loading';
     this.c2cDataService.getData(userId).subscribe(data => {
       if (data.status === 'completed') {
+        this.userId = userId;
         this.data = data.outings;
+        this.showCharts = true;
       }
       this.dataStatus = data.status;
-    },
-    error => {
-      // TODO
     });
   }
 }
