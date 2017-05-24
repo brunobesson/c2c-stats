@@ -1,43 +1,53 @@
 <div>
   <md-toolbar color="primary">
-    <span><md-icon>mood</md-icon></span>
     <span>C2C user statistics</span>
-  </md-toolbar>
-  <md-menu x-position="before" #menu="mdMenu">
-    <button md-menu-item>Option 1</button>
-    <button md-menu-item>Option 2</button>
-  </md-menu>
-
-  <md-card>
-    <md-input-container>
-      <input mdInput type="number" placeholder="Enter user ID" [formControl]="userIdControl">
-    </md-input-container>
-    <md-spinner *ngIf="dataStatus == 'loading'"></md-spinner>
-    <div [ngSwitch]="dataStatus">
-      <p *ngSwitchCase="'invalid'">There is no user with this ID or the user hasn't published any outing yet.</p>
-      <p *ngSwitchCase="'failed'">Data retrieval failed. Please try again later.</p>
+    <span class="app-toolbar-filler"></span>
+    <button md-button (click)="openLoginDialog()" *ngIf="!auth.authenticated">LOGIN</button>
+    <div *ngIf="auth.authenticated">
+      <button md-button [mdMenuTriggerFor]="userMenu">Toto <md-icon>arrow drop down</md-icon></button>
+      <md-menu #userMenu="mdMenu">
+        <button md-menu-item (click)="logout()" *ngIf="auth.authenticated">LOGOUT</button>
+      </md-menu>
     </div>
-  </md-card>
+  </md-toolbar>
 
-  <md-card *ngIf="showCharts">
-    <p>User {{userId}} has entered {{data.length}} outings.</p>
-  </md-card>
+  <div *ngIf="!auth.authenticated">
+    <p>Blah blah</p>
+    <button md-raised-button (click)="openLoginDialog()">LOGIN</button>
+  </div>
 
-  <md-card *ngIf="showCharts">
-    <md-card-header>
-      <md-card-title>Total accumulated elevation</md-card-title>
-    </md-card-header>
-    <md-card-content>
-      <app-elevation-chart [outings]="data"></app-elevation-chart>
-    </md-card-content>
-  </md-card>
+  <div *ngIf="auth.authenticated">
+    <md-card>
+      <md-input-container>
+        <input mdInput type="number" placeholder="Enter user ID" [formControl]="userIdControl">
+      </md-input-container>
+      <md-spinner *ngIf="dataStatus == 'loading'"></md-spinner>
+      <div [ngSwitch]="dataStatus">
+        <p *ngSwitchCase="'invalid'">There is no user with this ID or the user hasn't published any outing yet.</p>
+        <p *ngSwitchCase="'failed'">Data retrieval failed. Please try again later.</p>
+      </div>
+    </md-card>
 
-  <md-card *ngIf="showCharts">
-    <md-card-header>
-      <md-card-title>Areas</md-card-title>
-    </md-card-header>
-    <md-card-content>
-      <app-areas-chart [outings]="data"></app-areas-chart>
-    </md-card-content>
-  </md-card>
+    <md-card *ngIf="showCharts">
+      <p>User {{userId}} has entered {{data.length}} outings.</p>
+    </md-card>
+
+    <md-card *ngIf="showCharts">
+      <md-card-header>
+        <md-card-title>Total accumulated elevation</md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <app-elevation-chart [outings]="data"></app-elevation-chart>
+      </md-card-content>
+    </md-card>
+
+    <md-card *ngIf="showCharts">
+      <md-card-header>
+        <md-card-title>Areas</md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <app-areas-chart [outings]="data"></app-areas-chart>
+      </md-card-content>
+    </md-card>
+  </div>
 </div>

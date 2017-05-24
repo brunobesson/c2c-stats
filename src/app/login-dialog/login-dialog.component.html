@@ -1,0 +1,15 @@
+<form #form="ngForm">
+  <h1 md-dialog-title>Login</h1>
+  <md-dialog-content>
+    <md-input-container class="md-block">
+      <input mdInput placeholder="Username" required type="text" [(ngModel)]="model.username" name="username">
+    </md-input-container>
+    <md-input-container class="md-block">
+      <input mdInput placeholder="Password" required type="password" [(ngModel)]="model.password" name="password">
+    </md-input-container>
+  </md-dialog-content>
+  <md-dialog-actions>
+    <button type="button" md-button (click)="dialogRef.close()">Cancel</button>
+    <button type="button" md-raised-button [disabled]="!form.form.valid" (click)="onSubmit()">Login</button>
+  </md-dialog-actions>
+</form>
