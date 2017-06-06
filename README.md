@@ -12,6 +12,7 @@ Let's play with angular2 and build c2c statistics
 * How to retrieve ratings of outings?
 * Translations
 * Choose best language
+* AOT in prod
 
 ### Elevation chart
 
