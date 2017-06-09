@@ -9,7 +9,7 @@ import {
   MdInputModule,
   MdMenuModule,
   MdToolbarModule,
-  MdIconModule
+  MdIconModule,
 } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import 'hammerjs';
@@ -26,11 +26,9 @@ import { LoginDialogComponent } from './login-dialog/login-dialog.component';
     AppComponent,
     ElevationChartComponent,
     AreasChartComponent,
-    LoginDialogComponent
+    LoginDialogComponent,
   ],
-  entryComponents: [
-    LoginDialogComponent
-  ],
+  entryComponents: [LoginDialogComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -43,12 +41,9 @@ import { LoginDialogComponent } from './login-dialog/login-dialog.component';
     MdInputModule,
     MdMenuModule,
     MdToolbarModule,
-    MdIconModule
+    MdIconModule,
   ],
-  providers: [
-    C2cDataService,
-    AuthService
-  ],
-  bootstrap: [AppComponent]
+  providers: [C2cDataService, AuthService],
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

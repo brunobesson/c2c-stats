@@ -2,12 +2,15 @@ import { NgModule } from '@angular/core';
 import { Http, RequestOptions } from '@angular/http';
 import { AuthHttp, AuthConfig } from 'angular2-jwt';
 
-
 export function authHttpServiceFactory(http: Http, options: RequestOptions) {
-  return new AuthHttp(new AuthConfig({
-    noTokenScheme: true,
-    tokenGetter: () => `JWT token="${localStorage.getItem('token')}"`
-  }), http, options);
+  return new AuthHttp(
+    new AuthConfig({
+      noTokenScheme: true,
+      tokenGetter: () => `JWT token="${localStorage.getItem('token')}"`,
+    }),
+    http,
+    options
+  );
 }
 
 @NgModule({
@@ -15,8 +18,8 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
     {
       provide: AuthHttp,
       useFactory: authHttpServiceFactory,
-      deps: [Http, RequestOptions]
-    }
-  ]
+      deps: [Http, RequestOptions],
+    },
+  ],
 })
 export class AuthModule {}

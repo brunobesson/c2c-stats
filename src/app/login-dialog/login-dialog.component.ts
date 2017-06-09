@@ -5,18 +5,16 @@ import { Credentials } from 'app/login-dialog/credentials';
 @Component({
   selector: 'app-login-dialog',
   templateUrl: './login-dialog.component.html',
-  styleUrls: ['./login-dialog.component.css']
+  styleUrls: ['./login-dialog.component.css'],
 })
 export class LoginDialogComponent implements OnInit {
-
   private model: Credentials = {
     username: '',
-    password: ''
+    password: '',
   };
-  constructor(public dialogRef: MdDialogRef<LoginDialogComponent>) { }
+  constructor(public dialogRef: MdDialogRef<LoginDialogComponent>) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   onSubmit() {
     this.dialogRef.close(this.model);

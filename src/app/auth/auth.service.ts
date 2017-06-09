@@ -6,11 +6,11 @@ import { Credentials } from 'app/auth/credentials';
 
 @Injectable()
 export class AuthService {
-
-  constructor(private http: Http) { }
+  constructor(private http: Http) {}
 
   login(credentials: Credentials, handleError: (error: any) => void) {
-    this.http.post('https://api.camptocamp.org/users/login', credentials)
+    this.http
+      .post('https://api.camptocamp.org/users/login', credentials)
       .map(res => res.json()) // FIXME type
       .subscribe(
         data => localStorage.setItem('token', data.token),

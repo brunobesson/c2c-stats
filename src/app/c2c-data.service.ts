@@ -12,89 +12,93 @@ const c2curl = 'https://api.camptocamp.org/outings?u=';
 
 @Injectable()
 export class C2cDataService {
-
-  constructor(private http: Http) { }
+  constructor(private http: Http) {}
 
   getData(userId: number): Observable<C2cData> {
     if (!userId) {
       return Observable.of({
         status: 'invalid',
-        outings: []
+        outings: [],
       });
     }
-    const c2cdata = <BehaviorSubject<C2cData>> new BehaviorSubject({
+    const c2cdata = <BehaviorSubject<C2cData>>new BehaviorSubject({
       status: 'loading',
-      outings: []
+      outings: [],
     });
     const subscriptions: Subscription[] = [];
-    this.http.get(c2curl + userId)
-      .subscribe(response => {
+    this.http.get(c2curl + userId).subscribe(
+      response => {
         c2cdata.next(this.initData(response, userId));
         const total = c2cdata.getValue().total;
         if (total > c2cdata.getValue().outings.length) {
-          const offsets = Array<number>(Math.floor(total / 30)).fill(0).map((value, index) => 30 * (index + 1));
+          const offsets = Array<number>(Math.floor(total / 30))
+            .fill(0)
+            .map((value, index) => 30 * (index + 1));
           offsets.forEach(offset => {
-            const subscription = this.http.get(c2curl + userId + '&offset=' + offset)
-              .subscribe(response2 => {
-                c2cdata.next(this.updateData(c2cdata.getValue(), response2));
+            const subscription = this.http
+              .get(c2curl + userId + '&offset=' + offset)
+              .subscribe(
+                response2 => {
+                  c2cdata.next(this.updateData(c2cdata.getValue(), response2));
                 },
-              error => c2cdata.next(this.handleError(subscriptions, userId))
-            );
+                error => c2cdata.next(this.handleError(subscriptions, userId))
+              );
             subscriptions.push(subscription);
           });
         }
-    },
-    error => c2cdata.next(this.handleError(subscriptions, userId)));
+      },
+      error => c2cdata.next(this.handleError(subscriptions, userId))
+    );
     return c2cdata.asObservable();
   }
 
   private handleError(subscriptions: Subscription[], userId: number): C2cData {
     subscriptions.forEach(subscription => {
       if (!subscription.closed) {
-        subscription.unsubscribe()
+        subscription.unsubscribe();
       }
-    })
+    });
     return {
       user_id: userId,
       status: 'failed',
-      outings: []
+      outings: [],
     };
   }
 
   private initData(response: Response, userId: number): C2cData {
-    const newOutings = (response.json().documents as Outing[]);
+    const newOutings = response.json().documents as Outing[];
     const total = response.json().total as number;
     if (total === newOutings.length) {
       return {
         user_id: userId,
         status: 'completed',
-        outings: newOutings
+        outings: newOutings,
       };
     } else {
       return {
         user_id: userId,
         status: 'loading',
         total,
-        outings: newOutings
+        outings: newOutings,
       };
     }
   }
 
   private updateData(data: C2cData, response: Response): C2cData {
-    const newOutings = (response.json().documents as Outing[]);
+    const newOutings = response.json().documents as Outing[];
     const total = response.json().total as number;
 
     const updatedOutings = data.outings
       .concat(...newOutings)
-      .sort((o1, o2) => Date.parse(o1.date_start) - Date.parse(o2.date_start))
+      .sort((o1, o2) => Date.parse(o1.date_start) - Date.parse(o2.date_start));
 
     let updatedData = Object.assign({}, data, {
-      outings: updatedOutings
+      outings: updatedOutings,
     });
     if (total === updatedOutings.length) {
       updatedData = Object.assign({}, data, {
-      status: 'completed'
-      })
+        status: 'completed',
+      });
     }
     return updatedData;
   }

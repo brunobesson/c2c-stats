@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import {MdDialog } from '@angular/material';
+import { MdDialog } from '@angular/material';
 
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
@@ -13,8 +13,8 @@ import { LoginDialogComponent } from 'app/login-dialog/login-dialog.component';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: [ './app.component.css' ],
-  providers: [ C2cDataService ]
+  styleUrls: ['./app.component.css'],
+  providers: [C2cDataService],
 })
 export class AppComponent implements OnInit {
   userId: number;
@@ -23,7 +23,11 @@ export class AppComponent implements OnInit {
   dataStatus = 'invalid';
   showCharts = false;
 
-  constructor(public dialog: MdDialog, private auth: AuthService, private c2cDataService: C2cDataService) { }
+  constructor(
+    public dialog: MdDialog,
+    private auth: AuthService,
+    private c2cDataService: C2cDataService
+  ) {}
 
   ngOnInit(): void {
     this.userIdControl.valueChanges
@@ -40,7 +44,11 @@ export class AppComponent implements OnInit {
 
   openLoginDialog(): void {
     const dialogRef = this.dialog.open(LoginDialogComponent);
-    dialogRef.afterClosed().subscribe(credentials => this.auth.login(credentials, this.handleLoginError));
+    dialogRef
+      .afterClosed()
+      .subscribe(credentials =>
+        this.auth.login(credentials, this.handleLoginError)
+      );
   }
 
   private handleLoginError(error: any) {
