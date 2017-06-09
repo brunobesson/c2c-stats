@@ -9,7 +9,7 @@
     </md-input-container>
   </md-dialog-content>
   <md-dialog-actions>
-    <button type="button" md-button (click)="dialogRef.close()">Cancel</button>
+    <button type="button" md-button md-close-dialog>Cancel</button>
     <button type="button" md-raised-button [disabled]="!form.form.valid" (click)="onSubmit()">Login</button>
   </md-dialog-actions>
 </form>
