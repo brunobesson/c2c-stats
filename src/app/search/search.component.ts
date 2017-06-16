@@ -3,6 +3,7 @@ import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 
 import { C2cDataService } from '../c2c-data.service';
+import { Status } from '../status';
 import { User } from '../user';
 
 @Component({
@@ -12,7 +13,7 @@ import { User } from '../user';
 })
 export class SearchComponent implements OnInit {
   users: Observable<User[]>;
-  status = 'fulfilled';
+  status: Status = 'fulfilled';
   @Output() onUserSelect = new EventEmitter<User>();
   private searchTerms = new Subject<string>();
 

@@ -79,13 +79,13 @@ export class C2cDataService {
     if (total === newOutings.length) {
       return {
         user_id: userId,
-        status: 'completed',
+        status: 'fulfilled',
         outings: newOutings,
       };
     } else {
       return {
         user_id: userId,
-        status: 'loading',
+        status: 'pending',
         total,
         outings: newOutings,
       };

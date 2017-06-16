@@ -1,6 +1,5 @@
 import { Outing } from './outing';
-
-type Status = 'completed' | 'loading' | 'failed' | 'invalid';
+import { Status } from './status';
 
 export class C2cData {
   user_id: number;

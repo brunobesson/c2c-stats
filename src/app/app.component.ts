@@ -8,6 +8,7 @@ import { AuthService } from './auth/auth.service';
 import { C2cDataService } from './c2c-data.service';
 import { Outing } from './outing';
 import { LoginDialogComponent } from 'app/login-dialog/login-dialog.component';
+import { Status } from './status';
 import { User } from './user';
 
 @Component({
@@ -19,7 +20,7 @@ import { User } from './user';
 export class AppComponent {
   user: User;
   data: Outing[] = [];
-  dataStatus = 'invalid';
+  dataStatus: Status = 'failed';
   showCharts = false;
 
   constructor(
@@ -50,13 +51,13 @@ export class AppComponent {
   }
 
   private getC2cData(user: User): void {
-    this.dataStatus = 'loading';
+    this.dataStatus = 'pending';
     this.showCharts = false;
     this.c2cDataService.getData(user.document_id).subscribe(data => {
-      if (data.status === 'completed') {
+      if (data.status === 'fulfilled') {
         this.user = user;
         this.data = data.outings;
-        this.showCharts = true;
+        this.showCharts = this.data.length > 0;
       }
       this.dataStatus = data.status;
     });

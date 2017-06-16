@@ -24,9 +24,9 @@
       </div>
     </md-card>
 
-    <md-card *ngIf="dataStatus == 'loading' || showCharts">
-      <md-spinner *ngIf="dataStatus == 'loading'"></md-spinner>
-      <p *ngIf="showCharts"><a href="//www.camptocamp.org/profiles/{{user.document_id}}">{{user.name}} ({{user.forum_username}})</a> has entered
+    <md-card *ngIf="dataStatus == 'pending' || dataStatus == 'fulfilled'">
+      <md-spinner *ngIf="dataStatus == 'pending'"></md-spinner>
+      <p *ngIf="dataStatus == 'fulfilled'"><a href="//www.camptocamp.org/profiles/{{user.document_id}}">{{user.name}} ({{user.forum_username}})</a> has entered
         {{data.length}} outings.</p>
     </md-card>
 
