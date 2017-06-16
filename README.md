@@ -6,13 +6,13 @@ Let's play with angular2 and build c2c statistics
 ### Main
 
 * Update when user is selected
-* Add more information about user (requires auth?)
-* Auth
 * Other charts
 * How to retrieve ratings of outings?
 * Translations
 * Choose best language
 * AOT in prod
+* handle errors when autocomplete or data retrieval fails
+* better layout (use card only for graph sections)
 
 ### Elevation chart
 
