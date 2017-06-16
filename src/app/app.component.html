@@ -19,14 +19,15 @@
   <div *ngIf="auth.authenticated">
     <md-card>
       <app-search (onUserSelect)="onUserSelect($event)"></app-search>
-      <md-spinner *ngIf="dataStatus == 'loading'"></md-spinner>
       <div [ngSwitch]="dataStatus">
         <p *ngSwitchCase="'failed'">Data retrieval failed. Please try again later.</p>
       </div>
     </md-card>
 
-    <md-card *ngIf="showCharts">
-      <p><a href="//www.camptocamp.org/profiles/{{user.document_id}}">{{user.name}}</a> has entered {{data.length}} outings.</p>
+    <md-card *ngIf="dataStatus == 'loading' || showCharts">
+      <md-spinner *ngIf="dataStatus == 'loading'"></md-spinner>
+      <p *ngIf="showCharts"><a href="//www.camptocamp.org/profiles/{{user.document_id}}">{{user.name}} ({{user.forum_username}})</a> has entered
+        {{data.length}} outings.</p>
     </md-card>
 
     <md-card *ngIf="showCharts">
