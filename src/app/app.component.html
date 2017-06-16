@@ -18,18 +18,15 @@
 
   <div *ngIf="auth.authenticated">
     <md-card>
-      <md-input-container>
-        <input mdInput type="number" placeholder="Enter user ID" [formControl]="userIdControl">
-      </md-input-container>
+      <app-search (onUserSelect)="onUserSelect($event)"></app-search>
       <md-spinner *ngIf="dataStatus == 'loading'"></md-spinner>
       <div [ngSwitch]="dataStatus">
-        <p *ngSwitchCase="'invalid'">There is no user with this ID or the user hasn't published any outing yet.</p>
         <p *ngSwitchCase="'failed'">Data retrieval failed. Please try again later.</p>
       </div>
     </md-card>
 
     <md-card *ngIf="showCharts">
-      <p>User {{userId}} has entered {{data.length}} outings.</p>
+      <p><a href="//www.camptocamp.org/profiles/{{user.document_id}}">{{user.name}}</a> has entered {{data.length}} outings.</p>
     </md-card>
 
     <md-card *ngIf="showCharts">

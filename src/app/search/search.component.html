@@ -1,0 +1,11 @@
+<md-input-container>
+  <input #searchBox mdInput [mdAutocomplete]="auto" placeholder="Search user" (keyup)="search(searchBox.value)">
+</md-input-container>
+<md-autocomplete #auto="mdAutocomplete">
+  <md-option *ngFor="let user of users | async" (click)="showUser(user)">
+    {{user.name}} ({{user.forum_username}})
+  </md-option>
+  <md-option *ngIf="!(users | async)?.length && searchBox.value">
+    No matching user found.
+  </md-option>
+</md-autocomplete>

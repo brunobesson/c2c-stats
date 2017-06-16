@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
+import { AuthHttp } from 'angular2-jwt';
 import { Outing } from './outing';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
@@ -7,12 +8,19 @@ import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/observable/from';
 import { C2cData } from './c2c-data';
+import { User } from './user';
 
 const c2curl = 'https://api.camptocamp.org/outings?u=';
 
 @Injectable()
 export class C2cDataService {
-  constructor(private http: Http) {}
+  constructor(private http: Http, private authHttp: AuthHttp) {}
+
+  findUser(term: string): Observable<User[]> {
+    return this.authHttp
+      .get(`https://api.camptocamp.org/search?q=${term}&limit=7&t=u`)
+      .map(response => response.json().users.documents as User[]);
+  }
 
   getData(userId: number): Observable<C2cData> {
     if (!userId) {

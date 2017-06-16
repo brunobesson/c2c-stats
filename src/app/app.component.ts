@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component } from '@angular/core';
 import { MdDialog } from '@angular/material';
 
 import 'rxjs/add/operator/debounceTime';
@@ -9,6 +8,7 @@ import { AuthService } from './auth/auth.service';
 import { C2cDataService } from './c2c-data.service';
 import { Outing } from './outing';
 import { LoginDialogComponent } from 'app/login-dialog/login-dialog.component';
+import { User } from './user';
 
 @Component({
   selector: 'app-root',
@@ -16,9 +16,8 @@ import { LoginDialogComponent } from 'app/login-dialog/login-dialog.component';
   styleUrls: ['./app.component.css'],
   providers: [C2cDataService],
 })
-export class AppComponent implements OnInit {
-  userId: number;
-  userIdControl = new FormControl();
+export class AppComponent {
+  user: User;
   data: Outing[] = [];
   dataStatus = 'invalid';
   showCharts = false;
@@ -28,15 +27,6 @@ export class AppComponent implements OnInit {
     private auth: AuthService,
     private c2cDataService: C2cDataService
   ) {}
-
-  ngOnInit(): void {
-    this.userIdControl.valueChanges
-      .debounceTime(500)
-      .distinctUntilChanged()
-      .subscribe(newValue => {
-        this.getC2cData(newValue);
-      });
-  }
 
   logout(): void {
     this.auth.logout();
@@ -51,15 +41,20 @@ export class AppComponent implements OnInit {
       );
   }
 
+  onUserSelect(user: User) {
+    this.getC2cData(user);
+  }
+
   private handleLoginError(error: any) {
     console.log(error); // FIXME
   }
 
-  private getC2cData(userId: number): void {
+  private getC2cData(user: User): void {
     this.dataStatus = 'loading';
-    this.c2cDataService.getData(userId).subscribe(data => {
+    this.showCharts = false;
+    this.c2cDataService.getData(user.document_id).subscribe(data => {
       if (data.status === 'completed') {
-        this.userId = userId;
+        this.user = user;
         this.data = data.outings;
         this.showCharts = true;
       }
