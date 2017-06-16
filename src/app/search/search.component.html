@@ -5,7 +5,5 @@
   <md-option *ngFor="let user of users | async" (click)="showUser(user)">
     {{user.name}} ({{user.forum_username}})
   </md-option>
-  <md-option *ngIf="!(users | async)?.length && searchBox.value">
-    No matching user found.
-  </md-option>
 </md-autocomplete>
+<md-spinner *ngIf="status == 'pending'"></md-spinner>

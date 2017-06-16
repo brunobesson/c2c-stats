@@ -12,6 +12,7 @@ import { User } from '../user';
 })
 export class SearchComponent implements OnInit {
   users: Observable<User[]>;
+  status = 'fulfilled';
   @Output() onUserSelect = new EventEmitter<User>();
   private searchTerms = new Subject<string>();
 
@@ -21,13 +22,17 @@ export class SearchComponent implements OnInit {
     this.users = this.searchTerms
       .debounceTime(300)
       .distinctUntilChanged()
-      .filter(term => term.length > 2)
-      .switchMap(
-        term =>
-          term ? this.c2cDataService.findUser(term) : Observable.of<User[]>([])
+      .do(() => (this.status = 'pending'))
+      .switchMap(term =>
+        (term && term.length > 2
+          ? this.c2cDataService.findUser(term)
+          : Observable.of<User[]>([])).do(users => {
+          this.status = 'fulfilled';
+        })
       )
       .catch(error => {
         console.log(error); // FIXME
+        this.status = 'failed';
         return Observable.of<User[]>([]);
       });
   }

@@ -10,6 +10,7 @@ import {
   MdInputModule,
   MdMenuModule,
   MdOptionModule,
+  MdProgressSpinnerModule,
   MdToolbarModule,
   MdIconModule,
 } from '@angular/material';
@@ -49,6 +50,7 @@ import { SearchComponent } from './search/search.component';
     MdInputModule,
     MdMenuModule,
     MdOptionModule,
+    MdProgressSpinnerModule,
     MdToolbarModule,
     MdIconModule,
   ],
