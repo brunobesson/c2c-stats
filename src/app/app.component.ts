@@ -20,7 +20,7 @@ import { User } from './user';
 export class AppComponent {
   user: User;
   data: Outing[] = [];
-  dataStatus: Status = 'failed';
+  dataStatus: Status = 'initial';
   showCharts = false;
 
   constructor(

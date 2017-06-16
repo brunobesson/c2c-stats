@@ -25,12 +25,12 @@ export class C2cDataService {
   getData(userId: number): Observable<C2cData> {
     if (!userId) {
       return Observable.of({
-        status: 'invalid',
+        status: 'initial',
         outings: [],
       });
     }
     const c2cdata = <BehaviorSubject<C2cData>>new BehaviorSubject({
-      status: 'loading',
+      status: 'pending',
       outings: [],
     });
     const subscriptions: Subscription[] = [];
@@ -105,7 +105,7 @@ export class C2cDataService {
     });
     if (total === updatedOutings.length) {
       updatedData = Object.assign({}, data, {
-        status: 'completed',
+        status: 'fulfilled',
       });
     }
     return updatedData;

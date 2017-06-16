@@ -1,1 +1,1 @@
-export type Status = 'fulfilled' | 'pending' | 'failed';
+export type Status = 'initial' | 'fulfilled' | 'pending' | 'failed';
