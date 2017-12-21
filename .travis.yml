@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+  - 9
+
+before_install:
+  - npm install -g greenkeeper-lockfile@1
+  - npm install -g @angular/cli
+
+before_script:
+  - greenkeeper-lockfile-update
+
+script:
+  - ng build --prod
+
+after_script:
+  - greenkeeper-lockfile-upload
