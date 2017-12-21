@@ -1,5 +1,7 @@
 # c2c-stats
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/brunobesson/c2c-stats.svg)](https://greenkeeper.io/)
+
 Let's play with angular2 and build c2c statistics
 ## TODO
 
