@@ -25,7 +25,7 @@ export class AppComponent {
 
   constructor(
     public dialog: MdDialog,
-    private auth: AuthService,
+    public auth: AuthService,
     private c2cDataService: C2cDataService
   ) {}
 

@@ -8,7 +8,7 @@ import { Credentials } from 'app/login-dialog/credentials';
   styleUrls: ['./login-dialog.component.css'],
 })
 export class LoginDialogComponent implements OnInit {
-  private model: Credentials = {
+  model: Credentials = {
     username: '',
     password: '',
   };
