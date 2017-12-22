@@ -27,11 +27,13 @@ export class C2cDataService {
   getData(userId: number): Observable<C2cData> {
     if (!userId) {
       return Observable.of({
-        status: 'initial',
+        user_id: -1,
+        status: 'initial' as Status,
         outings: [],
       });
     }
     const c2cdata = <BehaviorSubject<C2cData>>new BehaviorSubject({
+      user_id: userId,
       status: 'pending',
       outings: [],
     });
