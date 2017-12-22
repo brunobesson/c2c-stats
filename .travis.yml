@@ -1,6 +1,9 @@
 language: node_js
 node_js:
   - 8
+branches:
+  except:
+    - gh-pages
 
 before_install:
   - npm install -g npm@latest
@@ -14,7 +17,15 @@ before_script:
   - greenkeeper-lockfile-update
 
 script:
-  - ng build --prod
+  - ng build --prod --base-href "https://brunobesson.github.io/c2c-stats/"
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GH_TOKEN
+  local_dir: dist
+  on:
+    branch: master
 
 after_script:
   - greenkeeper-lockfile-upload
