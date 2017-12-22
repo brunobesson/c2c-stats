@@ -15,6 +15,8 @@ Let's play with angular2 and build c2c statistics
 * AOT in prod
 * handle errors when autocomplete or data retrieval fails
 * better layout (use card only for graph sections)
+* cache using webstorage
+* maybe web workers?
 
 ### Elevation chart
 
