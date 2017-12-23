@@ -5,7 +5,7 @@
     <button mat-button (click)="openLoginDialog()" *ngIf="!auth.authenticated">LOGIN</button>
     <div *ngIf="auth.authenticated">
       <button mat-button [matMenuTriggerFor]="userMenu">Toto <mat-icon>arrow drop down</mat-icon></button>
-      <mat-menu #userMenu="matMenu">
+      <mat-menu #userMenu="matMenu" xPosition="before">
         <button mat-menu-item (click)="logout()" *ngIf="auth.authenticated">LOGOUT</button>
       </mat-menu>
     </div>
@@ -26,8 +26,10 @@
 
     <mat-card *ngIf="dataStatus == 'pending' || dataStatus == 'fulfilled'">
       <mat-spinner *ngIf="dataStatus == 'pending'"></mat-spinner>
-      <p *ngIf="dataStatus == 'fulfilled'"><a href="//www.camptocamp.org/profiles/{{user.document_id}}">{{user.name}} ({{user.forum_username}})</a> has entered
-        {{data.length}} outings.</p>
+      <p *ngIf="dataStatus == 'fulfilled'">
+        <a href="//www.camptocamp.org/profiles/{{user.document_id}}">{{user.name}} ({{user.forum_username}})</a>
+        has entered {{data.length}} outings.
+      </p>
     </mat-card>
 
     <mat-card *ngIf="showCharts">
