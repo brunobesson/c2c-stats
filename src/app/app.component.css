@@ -1,6 +1,10 @@
-md-card > md-spinner {
+mat-card > mat-spinner {
   margin-left: auto;
   margin-right: auto;
   width: 50px;
   height: 50px;
+}
+
+.app-toolbar-filler {
+  flex: 1 1 auto;
 }

@@ -5,10 +5,12 @@ import { Outing } from './outing';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
+import 'rxjs/add/observable/of';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/observable/from';
 import { C2cData } from './c2c-data';
 import { User } from './user';
+import { Status } from './status';
 
 const c2curl = 'https://api.camptocamp.org/outings?u=';
 
@@ -25,11 +27,13 @@ export class C2cDataService {
   getData(userId: number): Observable<C2cData> {
     if (!userId) {
       return Observable.of({
-        status: 'initial',
+        user_id: -1,
+        status: 'initial' as Status,
         outings: [],
       });
     }
     const c2cdata = <BehaviorSubject<C2cData>>new BehaviorSubject({
+      user_id: userId,
       status: 'pending',
       outings: [],
     });

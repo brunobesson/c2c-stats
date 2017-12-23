@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MdDialog } from '@angular/material';
+import { MatDialog } from '@angular/material';
 
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
@@ -7,7 +7,7 @@ import 'rxjs/add/operator/distinctUntilChanged';
 import { AuthService } from './auth/auth.service';
 import { C2cDataService } from './c2c-data.service';
 import { Outing } from './outing';
-import { LoginDialogComponent } from 'app/login-dialog/login-dialog.component';
+import { LoginDialogComponent } from './login-dialog/login-dialog.component';
 import { Status } from './status';
 import { User } from './user';
 
@@ -24,7 +24,7 @@ export class AppComponent {
   showCharts = false;
 
   constructor(
-    public dialog: MdDialog,
+    public dialog: MatDialog,
     public auth: AuthService,
     private c2cDataService: C2cDataService
   ) {}
