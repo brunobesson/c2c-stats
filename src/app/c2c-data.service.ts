@@ -5,10 +5,12 @@ import { Outing } from './outing';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
+import 'rxjs/add/observable/of';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/observable/from';
 import { C2cData } from './c2c-data';
 import { User } from './user';
+import { Status } from './status';
 
 const c2curl = 'https://api.camptocamp.org/outings?u=';
 

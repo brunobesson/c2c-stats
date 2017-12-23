@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { tokenNotExpired } from 'angular2-jwt';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
-import { Credentials } from 'app/auth/credentials';
+import { Credentials } from './credentials';
 
 @Injectable()
 export class AuthService {
