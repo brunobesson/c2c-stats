@@ -6,14 +6,10 @@ body {
   font-family: Roboto, sans-serif;
 }
 
-mat-card {
-  max-width: 80%;
+mat-card { /* stylelint-disable-line selector-type-no-unknown */
+  max-width: 90%;
   margin: 2em auto;
   text-align: center;
-}
-
-mat-toolbar-row {
-  justify-content: space-between;
 }
 
 .done {
