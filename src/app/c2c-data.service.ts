@@ -108,9 +108,7 @@ export class C2cDataService {
       outings: updatedOutings,
     });
     if (total === updatedOutings.length) {
-      updatedData = Object.assign({}, data, {
-        status: 'fulfilled',
-      });
+      updatedData = Object.assign({}, updatedData, { status: 'fulfilled'});
     }
     return updatedData;
   }
