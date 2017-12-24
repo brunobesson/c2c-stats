@@ -8,7 +8,8 @@ import {
   SimpleChange,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import * as d3 from 'd3';
+import * as d3 from 'd3'; // FIXME
+import * as moment from 'moment';
 import { ElevationChartData, ElevationCoords } from './elevation-chart-data';
 import { Outing } from '../outing';
 
@@ -24,18 +25,13 @@ export class ElevationChartComponent implements OnInit, OnChanges {
   @ViewChild('elevationChart') private chartContainer: ElementRef;
   @Input() outings: Outing[];
   private data: ElevationChartData[] = [];
-  private chart: d3.Selection<
-    SVGGElement,
-    ElevationChartData,
-    HTMLElement,
-    any
-  >;
+  private chart: d3.Selection<SVGGElement, ElevationChartData, HTMLElement, any>;
   private xScale: d3.ScaleTime<number, number>;
   private yScale: d3.ScaleLinear<number, number>;
   private yAxis: d3.Axis<number | { valueOf(): number }>;
   private colorScale = d3.scaleOrdinal<number, string>(d3.schemeCategory10);
   private height = 400;
-  private width = 800;
+  private width = 500;
 
   constructor() {}
 
@@ -62,41 +58,58 @@ export class ElevationChartComponent implements OnInit, OnChanges {
       this.data = [];
     }
 
+    const dateFormat = 'YYYY-MM-DD';
+
+    // first, add per year (TODO and later maybe per season)
     const outingsForYear = this.outings
       .filter(outing => outing.height_diff_up)
       .reduce((acc: Map<number, Outing[]>, outing: Outing) => {
-        // FIXME handle year overlap on multiday outing > interpolate
-        const year = Number(outing.date_start.substr(0, 4));
-        if (!acc.has(year)) {
-          acc.set(year, []);
+        const startYear = Number(outing.date_start.substr(0, 4));
+        const endYear = Number(outing.date_end.substr(0, 4));
+
+        // init arrays if needed
+        if (!acc.has(startYear)) {
+          acc.set(startYear, []);
         }
-        acc.get(year).push(outing);
+        if (startYear !== endYear && !acc.has(endYear)) {
+          acc.set(endYear, []);
+        }
+
+        // store outing(s) to matching year
+        if (startYear === endYear) {
+          acc.get(startYear).push(outing);
+        } else {
+          // we need to split the outing in 2
+          // (assume this will never be more than on year long)
+          const outing1 = JSON.parse(JSON.stringify(outing)) as Outing;
+          const outing2 = JSON.parse(JSON.stringify(outing)) as Outing;
+
+          const startDate = moment(outing.date_start, dateFormat);
+          const endDate = moment(outing.date_end, dateFormat);
+          const endDate1 = moment(`${startYear}-12-31`, dateFormat);
+          const startDate2 = moment(`${endYear}-01-01`, dateFormat);
+          const ratio = (startDate.diff(endDate1, 'days') + 1) / (startDate.diff(endDate, 'days') + 1);
+
+          outing1.date_end = endDate1.format(dateFormat);
+          outing1.height_diff_up = ratio * outing.height_diff_up;
+          outing2.date_start = startDate2.format(dateFormat);
+          outing2.height_diff_up = (1 - ratio) * outing.height_diff_up;
+
+          acc.get(startYear).push(outing1);
+          acc.get(endYear).push(outing2);
+        }
         return acc;
       }, new Map<number, Outing[]>());
-    const parseTime = d3.timeParse('%Y-%m-%d');
+
+    // compute line for each year
+    const parseTime = d3.timeParse('%Y-%m-%d'); // FIXME use moment?
     const lines = new Map<number, Array<ElevationCoords>>();
     outingsForYear.forEach((outings, year) => {
       let values: Array<ElevationCoords> = [];
-      outings.forEach(outing => {
-        // FIXME handle multi day
-        const dateStart = parseTime(outing.date_start);
-        const dateEnd = parseTime(outing.date_end);
-        dateStart.setFullYear(ElevationChartComponent.referenceYear);
-        dateEnd.setFullYear(ElevationChartComponent.referenceYear);
-        const elevation = outing.height_diff_up;
-        values.push({
-          date: dateStart,
-          elevation,
-        });
-      });
+
       values = outings
-        .sort(
-          (o1, v2) =>
-            parseTime(o1.date_start).getTime() -
-            parseTime(v2.date_start).getTime()
-        )
-        .reduce(
-          (acc: ElevationCoords[], outing: Outing) => {
+        .sort((o1, o2) => parseTime(o1.date_start).getTime() - parseTime(o2.date_start).getTime())
+        .reduce((acc: ElevationCoords[], outing: Outing) => {
             const dateStart = parseTime(outing.date_start);
             const dateEnd = parseTime(outing.date_end);
             dateStart.setFullYear(ElevationChartComponent.referenceYear);
@@ -107,7 +120,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
               elevation: acc[acc.length - 1].elevation,
             });
             acc.push({
-              date: dateEnd,
+              date: dateStart,
               elevation: acc[acc.length - 1].elevation + elevation,
             });
             return acc;
@@ -119,6 +132,20 @@ export class ElevationChartComponent implements OnInit, OnChanges {
             },
           ]
         );
+
+      // add final point, except for current year, where the last point is today
+      const currentYear = new Date().getFullYear();
+      if (year === currentYear) {
+        values.push({
+          date: parseTime(moment().format('YYYY-MM-DD')),
+          elevation: values[values.length - 1].elevation,
+        });
+      } else {
+        values.push({
+          date: parseTime(ElevationChartComponent.referenceYear + '-12-31'),
+          elevation: values[values.length - 1].elevation,
+        });
+      }
 
       lines.set(year, values);
     });
@@ -136,7 +163,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
     const svg = d3
       .select<HTMLDivElement, ElevationChartData>(element)
       .append('svg')
-      .attr('width', this.width + 60)
+      .attr('width', this.width + 70)
       .attr('height', this.height + 60);
 
     this.chart = svg
