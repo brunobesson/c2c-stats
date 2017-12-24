@@ -18,7 +18,7 @@
 
   <div *ngIf="auth.authenticated">
     <mat-card>
-      <app-search (onUserSelect)="onUserSelect($event)"></app-search>
+      <app-search (userSelect)="onUserSelect($event)"></app-search>
       <div [ngSwitch]="dataStatus">
         <p *ngSwitchCase="'failed'">Data retrieval failed. Please try again later.</p>
       </div>

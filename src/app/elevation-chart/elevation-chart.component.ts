@@ -196,8 +196,8 @@ export class ElevationChartComponent implements OnInit, OnChanges {
   private updateChart() {
     const flatten = (acc: number[], val: number[] | number): number[] =>
       acc.concat(Array.isArray(val) ? val.reduce(flatten, []) : val);
-    const ranges = this.data.map(line =>
-      line.values
+    const ranges = this.data.map(row =>
+      row.values
         .map(value => value.elevation)
         .reduce((a, b) => Math.max(a, b), 0)
     );

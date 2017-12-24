@@ -38,16 +38,16 @@ export class AreasChartComponent implements OnInit, OnChanges {
 
   private inc(data: AreasChartData[], key: string): void {
     let index = data.findIndex(element => element.area === key);
-    if (index == -1) {
+    if (index === -1) {
       data.push({
         area: key,
         count: 0
-      })
+      });
       index = data.length - 1;
     }
     data[index].count += 1;
   }
-  
+
   private bestName(locales: Locale[]): string {
     return locales[0].title; // TODO choose best language
   }
@@ -94,9 +94,9 @@ export class AreasChartComponent implements OnInit, OnChanges {
     const element: string = this.chartContainer.nativeElement;
     const svg = d3.select<HTMLDivElement, AreasChartData>(element)
       .append('svg')
-        .attr("width", width)
-        .attr("height", height)
-      .append('g')
+        .attr('width', width)
+        .attr('height', height)
+      .append('g');
 
 
     const pie = d3.pie<AreasChartData>()
@@ -111,7 +111,7 @@ export class AreasChartComponent implements OnInit, OnChanges {
 
     const color = d3.scaleOrdinal<string, string>(d3.schemeCategory20);
 
-    var g = svg.selectAll<SVGGElement, d3.PieArcDatum<AreasChartData>>('.arc')
+    const g = svg.selectAll<SVGGElement, d3.PieArcDatum<AreasChartData>>('.arc')
       .data<d3.PieArcDatum<AreasChartData>>(pie(this.data))
       .enter().append<SVGGElement>('g')
       .attr('class', 'arc');

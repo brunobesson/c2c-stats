@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
-import { AuthHttp } from 'angular2-jwt';
+import { HttpClient } from '@angular/common/http';
 import { Outing } from './outing';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/observable/of';
+import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/observable/from';
 import { C2cData } from './c2c-data';
@@ -16,12 +16,12 @@ const c2curl = 'https://api.camptocamp.org/outings?u=';
 
 @Injectable()
 export class C2cDataService {
-  constructor(private http: Http, private authHttp: AuthHttp) {}
+  constructor(private http: HttpClient) {}
 
   findUser(term: string): Observable<User[]> {
-    return this.authHttp
-      .get(`https://api.camptocamp.org/search?q=${term}&limit=7&t=u`)
-      .map(response => response.json().users.documents as User[]);
+    return this.http
+      .get<FindUserResponse>(`https://api.camptocamp.org/search?q=${term}&limit=7&t=u`)
+      .map(response => response.users.documents);
   }
 
   getData(userId: number): Observable<C2cData> {
@@ -38,9 +38,9 @@ export class C2cDataService {
       outings: [],
     });
     const subscriptions: Subscription[] = [];
-    this.http.get(c2curl + userId).subscribe(
-      response => {
-        c2cdata.next(this.initData(response, userId));
+    this.http.get<OutingsResponse>(c2curl + userId).subscribe(
+      resp => {
+        c2cdata.next(this.initData(resp.documents, resp.total, userId));
         const total = c2cdata.getValue().total;
         if (total > c2cdata.getValue().outings.length) {
           const offsets = Array<number>(Math.floor(total / 30))
@@ -48,10 +48,10 @@ export class C2cDataService {
             .map((value, index) => 30 * (index + 1));
           offsets.forEach(offset => {
             const subscription = this.http
-              .get(c2curl + userId + '&offset=' + offset)
+              .get<OutingsResponse>(c2curl + userId + '&offset=' + offset)
               .subscribe(
-                response2 => {
-                  c2cdata.next(this.updateData(c2cdata.getValue(), response2));
+                resp2 => {
+                  c2cdata.next(this.updateData(c2cdata.getValue(), resp2.documents, resp2.total));
                 },
                 error => c2cdata.next(this.handleError(subscriptions, userId))
               );
@@ -77,9 +77,7 @@ export class C2cDataService {
     };
   }
 
-  private initData(response: Response, userId: number): C2cData {
-    const newOutings = response.json().documents as Outing[];
-    const total = response.json().total as number;
+  private initData(newOutings: Outing[], total: number, userId: number): C2cData {
     if (total === newOutings.length) {
       return {
         user_id: userId,
@@ -96,10 +94,7 @@ export class C2cDataService {
     }
   }
 
-  private updateData(data: C2cData, response: Response): C2cData {
-    const newOutings = response.json().documents as Outing[];
-    const total = response.json().total as number;
-
+  private updateData(data: C2cData, newOutings: Outing[], total: number): C2cData {
     const updatedOutings = data.outings
       .concat(...newOutings)
       .sort((o1, o2) => Date.parse(o1.date_start) - Date.parse(o2.date_start));
@@ -112,4 +107,17 @@ export class C2cDataService {
     }
     return updatedData;
   }
+}
+
+interface OutingsResponse {
+  total: number;
+  documents: Outing[];
+}
+
+interface FindUserResponse {
+  users: UserDocuments;
+}
+
+interface UserDocuments {
+  documents: User[];
 }

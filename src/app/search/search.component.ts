@@ -19,7 +19,7 @@ import { User } from '../user';
 export class SearchComponent implements OnInit {
   users: Observable<User[]>;
   status: Status = 'fulfilled';
-  @Output() onUserSelect = new EventEmitter<User>();
+  @Output() userSelect = new EventEmitter<User>();
   private searchTerms = new Subject<string>();
 
   constructor(private c2cDataService: C2cDataService) {}
@@ -49,6 +49,6 @@ export class SearchComponent implements OnInit {
 
   showUser(user: User) {
     this.searchTerms.next();
-    this.onUserSelect.emit(user);
+    this.userSelect.emit(user);
   }
 }

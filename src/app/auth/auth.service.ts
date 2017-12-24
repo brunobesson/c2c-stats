@@ -1,19 +1,18 @@
 import { Injectable } from '@angular/core';
-import { tokenNotExpired } from 'angular2-jwt';
-import { Http } from '@angular/http';
-import 'rxjs/add/operator/map';
+import { HttpClient } from '@angular/common/http';
 import { Credentials } from './credentials';
+import { HttpErrorResponse } from '@angular/common/http/src/response';
+import { AuthTokenService } from './auth-token.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private http: Http) {}
+  constructor(private http: HttpClient, private authToken: AuthTokenService) {}
 
-  login(credentials: Credentials, handleError: (error: any) => void) {
+  login(credentials: Credentials, handleError: (error: HttpErrorResponse) => void) {
     this.http
-      .post('https://api.camptocamp.org/users/login', credentials)
-      .map(res => res.json()) // FIXME type
+      .post<LoginResponse>('https://api.camptocamp.org/users/login', credentials)
       .subscribe(
-        data => localStorage.setItem('token', data.token),
+        resp => localStorage.setItem('token', resp.token),
         handleError
       );
   }
@@ -23,6 +22,17 @@ export class AuthService {
   }
 
   get authenticated() {
-    return tokenNotExpired('token');
+    return this.authToken.authenticated;
   }
+}
+
+interface LoginResponse {
+  forum_username: string;
+  lang: string;
+  username: string;
+  token: string;
+  id: number;
+  name: string;
+  expire: number;
+  roles: Array<string>;
 }
