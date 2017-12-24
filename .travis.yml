@@ -17,6 +17,7 @@ before_script:
   - greenkeeper-lockfile-update
 
 script:
+  - ng lint
   - ng build --prod --base-href "https://brunobesson.github.io/c2c-stats/"
 
 deploy:

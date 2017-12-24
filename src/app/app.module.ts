@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import {
   MatAutocompleteModule,
   MatButtonModule,
@@ -17,8 +17,9 @@ import {
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import 'hammerjs';
 
-import { AuthModule } from './auth/auth.module';
+import { AuthTokenInterceptor } from './auth/auth-token.interceptor';
 import { AuthService } from './auth/auth.service';
+import { AuthTokenService } from './auth/auth-token.service';
 import { C2cDataService } from './c2c-data.service';
 import { AppComponent } from './app.component';
 import { ElevationChartComponent } from './elevation-chart/elevation-chart.component';
@@ -40,8 +41,7 @@ import { SearchComponent } from './search/search.component';
     BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpModule,
-    AuthModule,
+    HttpClientModule,
 
     MatAutocompleteModule,
     MatButtonModule,
@@ -54,7 +54,16 @@ import { SearchComponent } from './search/search.component';
     MatToolbarModule,
     MatIconModule,
   ],
-  providers: [C2cDataService, AuthService],
+  providers: [
+    C2cDataService,
+    AuthService,
+    AuthTokenService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthTokenInterceptor,
+      multi: true,
+    }
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

@@ -1,27 +1,25 @@
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
-import { AuthHttp } from 'angular2-jwt';
+import { HttpClient } from '@angular/common/http';
 import { Outing } from './outing';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/observable/of';
+import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/observable/from';
 import { C2cData } from './c2c-data';
 import { User } from './user';
 import { Status } from './status';
 
-const c2curl = 'https://api.camptocamp.org/outings?u=';
-
 @Injectable()
 export class C2cDataService {
-  constructor(private http: Http, private authHttp: AuthHttp) {}
+  constructor(private http: HttpClient) {}
 
   findUser(term: string): Observable<User[]> {
-    return this.authHttp
-      .get(`https://api.camptocamp.org/search?q=${term}&limit=7&t=u`)
-      .map(response => response.json().users.documents as User[]);
+    return this.http
+      .get<FindUserResponse>(`https://api.camptocamp.org/search?q=${term}&limit=7&t=u`)
+      .map(response => response.users.documents);
   }
 
   getData(userId: number): Observable<C2cData> {
@@ -30,17 +28,17 @@ export class C2cDataService {
         user_id: -1,
         status: 'initial' as Status,
         outings: [],
-      });
+      } as C2cData);
     }
-    const c2cdata = <BehaviorSubject<C2cData>>new BehaviorSubject({
+    const c2cdata = new BehaviorSubject({
       user_id: userId,
       status: 'pending',
       outings: [],
-    });
+    } as C2cData);
     const subscriptions: Subscription[] = [];
-    this.http.get(c2curl + userId).subscribe(
-      response => {
-        c2cdata.next(this.initData(response, userId));
+    this.http.get<OutingsResponse>(`https://api.camptocamp.org/outings?u=${userId}`).subscribe(
+      resp => {
+        c2cdata.next(this.initData(resp.documents, resp.total, userId));
         const total = c2cdata.getValue().total;
         if (total > c2cdata.getValue().outings.length) {
           const offsets = Array<number>(Math.floor(total / 30))
@@ -48,10 +46,10 @@ export class C2cDataService {
             .map((value, index) => 30 * (index + 1));
           offsets.forEach(offset => {
             const subscription = this.http
-              .get(c2curl + userId + '&offset=' + offset)
+              .get<OutingsResponse>(`https://api.camptocamp.org/outings?u=${userId}&offset=${offset}`)
               .subscribe(
-                response2 => {
-                  c2cdata.next(this.updateData(c2cdata.getValue(), response2));
+                resp2 => {
+                  c2cdata.next(this.updateData(c2cdata.getValue(), resp2.documents, resp2.total));
                 },
                 error => c2cdata.next(this.handleError(subscriptions, userId))
               );
@@ -64,7 +62,7 @@ export class C2cDataService {
     return c2cdata.asObservable();
   }
 
-  private handleError(subscriptions: Subscription[], userId: number): C2cData {
+  private handleError(subscriptions: Subscription[], userId: number) {
     subscriptions.forEach(subscription => {
       if (!subscription.closed) {
         subscription.unsubscribe();
@@ -74,42 +72,50 @@ export class C2cDataService {
       user_id: userId,
       status: 'failed',
       outings: [],
-    };
+    } as C2cData;
   }
 
-  private initData(response: Response, userId: number): C2cData {
-    const newOutings = response.json().documents as Outing[];
-    const total = response.json().total as number;
+  private initData(newOutings: Outing[], total: number, userId: number) {
     if (total === newOutings.length) {
       return {
         user_id: userId,
         status: 'fulfilled',
         outings: newOutings,
-      };
+      } as C2cData;
     } else {
       return {
         user_id: userId,
         status: 'pending',
         total,
         outings: newOutings,
-      };
+      } as C2cData;
     }
   }
 
-  private updateData(data: C2cData, response: Response): C2cData {
-    const newOutings = response.json().documents as Outing[];
-    const total = response.json().total as number;
-
+  private updateData(data: C2cData, newOutings: Outing[], total: number): C2cData {
     const updatedOutings = data.outings
       .concat(...newOutings)
       .sort((o1, o2) => Date.parse(o1.date_start) - Date.parse(o2.date_start));
 
     let updatedData = Object.assign({}, data, {
       outings: updatedOutings,
-    });
+    }) as C2cData;
     if (total === updatedOutings.length) {
       updatedData = Object.assign({}, updatedData, { status: 'fulfilled'});
     }
     return updatedData;
   }
+}
+
+interface OutingsResponse {
+  total: number;
+  documents: Outing[];
+}
+
+interface FindUserResponse {
+  users: UserDocuments;
+}
+
+interface UserDocuments {
+  documents: User[];
 }

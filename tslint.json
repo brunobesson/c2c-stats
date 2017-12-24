@@ -19,7 +19,9 @@
     "import-blacklist": [
       true,
       "rxjs",
-      "rxjs/Rx"
+      "rxjs/Rx",
+      "d3",
+      "lodash"
     ],
     "import-spacing": true,
     "indent": [
@@ -30,7 +32,7 @@
     "label-position": true,
     "max-line-length": [
       true,
-      140
+      120
     ],
     "member-access": false,
     "member-ordering": [
