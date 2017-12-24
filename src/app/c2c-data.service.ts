@@ -12,8 +12,6 @@ import { C2cData } from './c2c-data';
 import { User } from './user';
 import { Status } from './status';
 
-const c2curl = 'https://api.camptocamp.org/outings?u=';
-
 @Injectable()
 export class C2cDataService {
   constructor(private http: HttpClient) {}
@@ -30,15 +28,15 @@ export class C2cDataService {
         user_id: -1,
         status: 'initial' as Status,
         outings: [],
-      });
+      } as C2cData);
     }
-    const c2cdata = <BehaviorSubject<C2cData>>new BehaviorSubject({
+    const c2cdata = new BehaviorSubject({
       user_id: userId,
       status: 'pending',
       outings: [],
-    });
+    } as C2cData);
     const subscriptions: Subscription[] = [];
-    this.http.get<OutingsResponse>(c2curl + userId).subscribe(
+    this.http.get<OutingsResponse>(`https://api.camptocamp.org/outings?u=${userId}`).subscribe(
       resp => {
         c2cdata.next(this.initData(resp.documents, resp.total, userId));
         const total = c2cdata.getValue().total;
@@ -48,7 +46,7 @@ export class C2cDataService {
             .map((value, index) => 30 * (index + 1));
           offsets.forEach(offset => {
             const subscription = this.http
-              .get<OutingsResponse>(c2curl + userId + '&offset=' + offset)
+              .get<OutingsResponse>(`https://api.camptocamp.org/outings?u=${userId}&offset=${offset}`)
               .subscribe(
                 resp2 => {
                   c2cdata.next(this.updateData(c2cdata.getValue(), resp2.documents, resp2.total));
@@ -64,7 +62,7 @@ export class C2cDataService {
     return c2cdata.asObservable();
   }
 
-  private handleError(subscriptions: Subscription[], userId: number): C2cData {
+  private handleError(subscriptions: Subscription[], userId: number) {
     subscriptions.forEach(subscription => {
       if (!subscription.closed) {
         subscription.unsubscribe();
@@ -74,23 +72,23 @@ export class C2cDataService {
       user_id: userId,
       status: 'failed',
       outings: [],
-    };
+    } as C2cData;
   }
 
-  private initData(newOutings: Outing[], total: number, userId: number): C2cData {
+  private initData(newOutings: Outing[], total: number, userId: number) {
     if (total === newOutings.length) {
       return {
         user_id: userId,
         status: 'fulfilled',
         outings: newOutings,
-      };
+      } as C2cData;
     } else {
       return {
         user_id: userId,
         status: 'pending',
         total,
         outings: newOutings,
-      };
+      } as C2cData;
     }
   }
 
@@ -101,7 +99,7 @@ export class C2cDataService {
 
     let updatedData = Object.assign({}, data, {
       outings: updatedOutings,
-    });
+    }) as C2cData;
     if (total === updatedOutings.length) {
       updatedData = Object.assign({}, updatedData, { status: 'fulfilled'});
     }

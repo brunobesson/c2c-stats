@@ -1,5 +1,16 @@
-import { Component, OnChanges, OnInit, Input, ViewChild, ElementRef, SimpleChange, ChangeDetectionStrategy } from '@angular/core';
-import * as d3 from 'd3';
+import {
+  Component,
+  OnChanges,
+  OnInit,
+  Input,
+  ViewChild,
+  ElementRef,
+  SimpleChange,
+  ChangeDetectionStrategy
+} from '@angular/core';
+import { select } from 'd3-selection';
+import { scaleOrdinal, schemeCategory20 } from 'd3-scale';
+import { arc, pie, PieArcDatum } from 'd3-shape';
 import { AreasChartData } from './areas-chart-data';
 import { Outing } from '../outing';
 import { Locale } from '../locale';
@@ -92,36 +103,36 @@ export class AreasChartComponent implements OnInit, OnChanges {
     const radius = Math.min(width, height) / 2;
 
     const element: string = this.chartContainer.nativeElement;
-    const svg = d3.select<HTMLDivElement, AreasChartData>(element)
+    const svg = select<HTMLDivElement, AreasChartData>(element)
       .append('svg')
         .attr('width', width)
         .attr('height', height)
       .append('g');
 
 
-    const pie = d3.pie<AreasChartData>()
-      .sort(null)
+    const pieGenerator = pie<AreasChartData>()
+      .sort(null) // FIXME?
       .value(d => d.count);
 
-    const arc = d3.arc<d3.PieArcDatum<AreasChartData>>()
+    const arcGenerator = arc<PieArcDatum<AreasChartData>>()
       .outerRadius(radius * 0.8)
       .innerRadius(radius * 0.4);
 
     svg.attr('transform', `translate(${width / 2},${height / 2})`);
 
-    const color = d3.scaleOrdinal<string, string>(d3.schemeCategory20);
+    const color = scaleOrdinal<string, string>(schemeCategory20);
 
-    const g = svg.selectAll<SVGGElement, d3.PieArcDatum<AreasChartData>>('.arc')
-      .data<d3.PieArcDatum<AreasChartData>>(pie(this.data))
+    const g = svg.selectAll<SVGGElement, PieArcDatum<AreasChartData>>('.arc')
+      .data<PieArcDatum<AreasChartData>>(pieGenerator(this.data))
       .enter().append<SVGGElement>('g')
       .attr('class', 'arc');
 
     g.append<SVGPathElement>('path')
-      .attr('d', arc)
+      .attr('d', arcGenerator)
       .style('fill', d => color(d.data.area));
 
     g.append<SVGTextElement>('text')
-      .attr('transform', d => `translate(${arc.centroid(d)})`)
+      .attr('transform', d => `translate(${arcGenerator.centroid(d)})`)
       .attr('dy', '.35em')
       .text(d => d.data.area + '>' + d.data.count);
   }
@@ -129,7 +140,7 @@ export class AreasChartComponent implements OnInit, OnChanges {
   private updateChart() {
     // TODO
     const element: string = this.chartContainer.nativeElement;
-    d3.select(element).select('svg').remove();
+    select(element).select('svg').remove();
     this.createChart();
   }
 }

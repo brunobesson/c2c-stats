@@ -8,7 +8,11 @@ import {
   SimpleChange,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import * as d3 from 'd3'; // FIXME
+import {axisBottom, axisLeft, Axis } from 'd3-axis';
+import { scaleLinear, scaleOrdinal, scaleTime, schemeCategory10, ScaleLinear, ScaleTime } from 'd3-scale';
+import { select, Selection } from 'd3-selection';
+import { line } from 'd3-shape';
+import { timeFormat } from 'd3-time-format';
 import * as moment from 'moment';
 import { ElevationChartData, ElevationCoords } from './elevation-chart-data';
 import { Outing } from '../outing';
@@ -25,11 +29,11 @@ export class ElevationChartComponent implements OnInit, OnChanges {
   @ViewChild('elevationChart') private chartContainer: ElementRef;
   @Input() outings: Outing[];
   private data: ElevationChartData[] = [];
-  private chart: d3.Selection<SVGGElement, ElevationChartData, HTMLElement, any>;
-  private xScale: d3.ScaleTime<number, number>;
-  private yScale: d3.ScaleLinear<number, number>;
-  private yAxis: d3.Axis<number | { valueOf(): number }>;
-  private colorScale = d3.scaleOrdinal<number, string>(d3.schemeCategory10);
+  private chart: Selection<SVGGElement, ElevationChartData, HTMLElement, any>;
+  private xScale: ScaleTime<number, number>;
+  private yScale: ScaleLinear<number, number>;
+  private yAxis: Axis<number | { valueOf(): number }>;
+  private colorScale = scaleOrdinal<number, string>(schemeCategory10);
   private height = 400;
   private width = 500;
 
@@ -159,8 +163,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
 
   private createChart() {
     const element: any = this.chartContainer.nativeElement;
-    const svg = d3
-      .select<HTMLDivElement, ElevationChartData>(element)
+    const svg = select<HTMLDivElement, ElevationChartData>(element)
       .append('svg')
       .attr('width', this.width + 70)
       .attr('height', this.height + 60);
@@ -169,22 +172,21 @@ export class ElevationChartComponent implements OnInit, OnChanges {
       .append<SVGGElement>('g')
       .attr('transform', 'translate(40,40)');
 
-    this.xScale = d3
-      .scaleTime()
+    this.xScale = scaleTime()
       .domain([
         new Date(ElevationChartComponent.referenceYear, 0, 1),
         new Date(ElevationChartComponent.referenceYear, 11, 31),
       ])
       .rangeRound([0, this.width]);
-    this.yScale = d3.scaleLinear().range([this.height, 0]);
-    this.yAxis = d3.axisLeft(this.yScale);
+    this.yScale = scaleLinear().range([this.height, 0]);
+    this.yAxis = axisLeft(this.yScale);
 
     this.chart.append('g').attr('class', 'y axis').call(this.yAxis);
     this.chart
       .append('g')
       .attr('class', 'x axis')
       .attr('transform', `translate(0,${this.height})`)
-      .call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat('%B')))
+      .call(axisBottom(this.xScale).tickFormat(timeFormat('%B')))
       .selectAll('.tick text')
       .style('text-anchor', 'start')
       .attr('x', 6)
@@ -196,8 +198,8 @@ export class ElevationChartComponent implements OnInit, OnChanges {
   private updateChart() {
     const flatten = (acc: number[], val: number[] | number): number[] =>
       acc.concat(Array.isArray(val) ? val.reduce(flatten, []) : val);
-    const ranges = this.data.map(row =>
-      row.values
+    const ranges = this.data.map(r =>
+      r.values
         .map(value => value.elevation)
         .reduce((a, b) => Math.max(a, b), 0)
     );
@@ -206,14 +208,13 @@ export class ElevationChartComponent implements OnInit, OnChanges {
 
     const wrap = this.chart.selectAll('g.lines').data([this.data]);
 
-    const lines = wrap
+    const rows = wrap
       .selectAll<SVGPathElement, ElevationChartData>('.line')
       .data<ElevationChartData>(d => d, d => d.year.toString());
-    const line = d3
-      .line<ElevationCoords>()
+    const row = line<ElevationCoords>()
       .x(d => this.xScale(d.date.toDate()))
       .y(d => this.yScale(d.elevation));
-    lines
+    rows
       .enter()
       .append('path')
       .attr('class', 'line')
@@ -223,8 +224,8 @@ export class ElevationChartComponent implements OnInit, OnChanges {
       .attr('stroke-linejoin', 'round')
       .attr('stroke-linecap', 'round')
       .attr('stroke-width', 1.5)
-      .merge(lines)
-      .attr('d', d => line(d.values));
-    lines.exit().remove();
+      .merge(rows)
+      .attr('d', d => row(d.values));
+    rows.exit().remove();
   }
 }
