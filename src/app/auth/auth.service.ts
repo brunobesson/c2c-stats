@@ -34,5 +34,5 @@ interface LoginResponse {
   id: number;
   name: string;
   expire: number;
-  roles: Array<string>;
+  roles: string[];
 }
