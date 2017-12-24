@@ -1,5 +1,7 @@
+import * as moment from 'Moment';
+
 export class ElevationCoords {
-  date: Date;
+  date: moment.Moment;
   elevation: number;
 }
 

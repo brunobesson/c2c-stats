@@ -102,18 +102,17 @@ export class ElevationChartComponent implements OnInit, OnChanges {
       }, new Map<number, Outing[]>());
 
     // compute line for each year
-    const parseTime = d3.timeParse('%Y-%m-%d'); // FIXME use moment?
     const lines = new Map<number, Array<ElevationCoords>>();
     outingsForYear.forEach((outings, year) => {
       let values: Array<ElevationCoords> = [];
 
       values = outings
-        .sort((o1, o2) => parseTime(o1.date_start).getTime() - parseTime(o2.date_start).getTime())
+        .sort((o1, o2) => moment(o1.date_start, dateFormat).diff(moment(o2.date_start, dateFormat)))
         .reduce((acc: ElevationCoords[], outing: Outing) => {
-            const dateStart = parseTime(outing.date_start);
-            const dateEnd = parseTime(outing.date_end);
-            dateStart.setFullYear(ElevationChartComponent.referenceYear);
-            dateEnd.setFullYear(ElevationChartComponent.referenceYear);
+            const dateStart = moment(outing.date_start, dateFormat);
+            const dateEnd = moment(outing.date_end, dateFormat);
+            dateStart.year(ElevationChartComponent.referenceYear);
+            dateEnd.year(ElevationChartComponent.referenceYear);
             const elevation = outing.height_diff_up;
             acc.push({
               date: dateStart,
@@ -127,7 +126,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
           },
           [
             {
-              date: parseTime(ElevationChartComponent.referenceYear + '-01-01'),
+              date: moment(ElevationChartComponent.referenceYear + '-01-01', dateFormat),
               elevation: 0,
             },
           ]
@@ -137,12 +136,12 @@ export class ElevationChartComponent implements OnInit, OnChanges {
       const currentYear = new Date().getFullYear();
       if (year === currentYear) {
         values.push({
-          date: parseTime(moment().format('YYYY-MM-DD')),
+          date: moment(),
           elevation: values[values.length - 1].elevation,
         });
       } else {
         values.push({
-          date: parseTime(ElevationChartComponent.referenceYear + '-12-31'),
+          date: moment(ElevationChartComponent.referenceYear + '-12-31', dateFormat),
           elevation: values[values.length - 1].elevation,
         });
       }
@@ -212,7 +211,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
       .data<ElevationChartData>(d => d, d => d.year.toString());
     const line = d3
       .line<ElevationCoords>()
-      .x(d => this.xScale(d.date))
+      .x(d => this.xScale(d.date.toDate()))
       .y(d => this.yScale(d.elevation));
     lines
       .enter()
