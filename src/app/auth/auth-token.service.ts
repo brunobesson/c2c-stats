@@ -6,7 +6,7 @@ export class AuthTokenService {
   constructor() {}
 
   public getToken(): string {
-    return localStorage.getItem('token');
+    return localStorage.getItem('c2c-auth-token');
   }
 
   get authenticated() {

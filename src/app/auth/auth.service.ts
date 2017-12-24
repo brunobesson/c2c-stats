@@ -12,13 +12,13 @@ export class AuthService {
     this.http
       .post<LoginResponse>('https://api.camptocamp.org/users/login', credentials)
       .subscribe(
-        resp => localStorage.setItem('token', resp.token),
+        resp => localStorage.setItem('c2c-auth-token', resp.token),
         handleError
       );
   }
 
   logout() {
-    localStorage.removeItem('token');
+    localStorage.removeItem('c2c-auth-token');
   }
 
   get authenticated() {
