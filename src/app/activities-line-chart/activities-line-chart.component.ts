@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, Input, OnChanges, OnInit, SimpleChange } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, Input, OnChanges, SimpleChange } from '@angular/core';
 import Chart from 'frappe-charts/dist/frappe-charts.min.esm';
 import { Outing } from '../outing';
 import { ActivitiesLineChartData } from './activities-line-chart-data';
@@ -9,16 +9,13 @@ import { ActivitiesLineChartData } from './activities-line-chart-data';
   styleUrls: ['./activities-line-chart.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ActivitiesLineChartComponent implements OnInit, OnChanges {
+export class ActivitiesLineChartComponent implements OnChanges {
 
   @Input() outings: Outing[];
   @Input() id: string;
   private data: ActivitiesLineChartData;
 
   constructor(private el: ElementRef) { }
-
-  ngOnInit() {
-  }
 
   ngOnChanges(changes: { [key: string]: SimpleChange }) {
     if (changes['outings'].isFirstChange()) {
