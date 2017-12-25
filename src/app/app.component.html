@@ -30,6 +30,7 @@
         <a href="//www.camptocamp.org/profiles/{{user.document_id}}">{{user.name}} ({{user.forum_username}})</a>
         has entered {{data.length}} outings.
       </p>
+      <app-activities-line-chart [outings]="data"></app-activities-line-chart>
     </mat-card>
 
     <mat-card *ngIf="showCharts">

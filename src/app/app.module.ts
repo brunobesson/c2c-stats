@@ -26,6 +26,7 @@ import { ElevationChartComponent } from './elevation-chart/elevation-chart.compo
 import { AreasChartComponent } from './areas-chart/areas-chart.component';
 import { LoginDialogComponent } from './login-dialog/login-dialog.component';
 import { SearchComponent } from './search/search.component';
+import { ActivitiesLineChartComponent } from './activities-line-chart/activities-line-chart.component';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { SearchComponent } from './search/search.component';
     AreasChartComponent,
     LoginDialogComponent,
     SearchComponent,
+    ActivitiesLineChartComponent,
   ],
   entryComponents: [LoginDialogComponent],
   imports: [
