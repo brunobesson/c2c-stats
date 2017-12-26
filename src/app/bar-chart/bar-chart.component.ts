@@ -2,11 +2,10 @@ import { Component, OnChanges, Input, Output, EventEmitter, ElementRef, SimpleCh
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
 import { select } from 'd3-selection';
-import { Outing } from '../outing';
 import { BarChartDataItem } from './bar-chart-data-item';
-
-import barChart = require('britecharts/dist/umd/bar.min');
-import miniTooltip = require('britecharts/dist/umd/miniTooltip.min');
+import * as barChart from 'britecharts/dist/umd/bar.min';
+import * as miniTooltip from 'britecharts/dist/umd/miniTooltip.min';
+import { Outing } from '../outing';
 import { ratings } from '../ratings';
 
 /**
