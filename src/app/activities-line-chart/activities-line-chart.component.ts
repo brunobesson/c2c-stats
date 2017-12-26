@@ -18,9 +18,6 @@ export class ActivitiesLineChartComponent implements OnChanges {
   constructor(private el: ElementRef) { }
 
   ngOnChanges(changes: { [key: string]: SimpleChange }) {
-    if (changes['outings'].isFirstChange()) {
-      return;
-    }
     if (this.outings) {
       this.outingsToData();
       this.updateChart();

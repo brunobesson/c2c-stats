@@ -52,7 +52,7 @@ export class BarChartComponent implements OnChanges {
     let propertyMap = new Map<string, number>();
     orderedValues.forEach(value => propertyMap.set(value, 0));
     propertyMap = this.outings
-      // .filter(outing => outing.activities) FIXME filter based on activity
+      .filter(outing => this.activity == null || outing.activities.includes(this.activity))
       .filter(outing => outing[this.property] !== undefined && outing[this.property] !== null)
       .map(outing => outing[this.property] as string)
       .reduce((map, value) => {
@@ -79,9 +79,16 @@ export class BarChartComponent implements OnChanges {
     const containerWidth = barContainer.node() ? barContainer.node().getBoundingClientRect().width : false;
 
     if (containerWidth) {
+      const margin = {
+        top: 20,
+        right: 20,
+        bottom: 30,
+        left: 40
+      };
+      this.bar.margin(margin);
       this.bar.width(containerWidth);
-      this.bar.shouldReverseColorList(false); // FIXME
-      this.bar.height(400); // FIXME
+      // ensure an height based on the number of bars -- all bars same height
+      this.bar.height(margin.top + margin.bottom + this.data.length * 20);
       this.bar.isHorizontal(true);
 
       this.bar.on('customMouseOver', this.tooltip.show);

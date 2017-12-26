@@ -15,6 +15,7 @@ Let's play with angular and build c2c statistics viewers
 * cache using webstorage
 * maybe web workers?
 * Unit tests
+* SSO
 
 ## angular-cli
 
