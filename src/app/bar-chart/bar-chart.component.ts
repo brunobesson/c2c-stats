@@ -5,8 +5,11 @@ import { select } from 'd3-selection';
 import { BarChartDataItem } from './bar-chart-data-item';
 import * as barChart from 'britecharts/dist/umd/bar.min';
 import * as miniTooltip from 'britecharts/dist/umd/miniTooltip.min';
-import { Outing } from '../outing';
-import { ratings } from '../ratings';
+import { Outing, Activity } from '../outing';
+import { ratingsValues } from '../shared/ratings';
+
+type Property = 'rock_free_rating' | 'ski_rating' | 'global_rating' | 'ice_rating' | 'via_ferrata_rating' |
+  'hiking_rating' | 'snowshoe_rating' | 'mtb_up_rating'| 'mtb_down_rating';
 
 /**
  * Inspired from https://github.com/colapdev/ngx-britecharts
@@ -19,8 +22,8 @@ import { ratings } from '../ratings';
 export class BarChartComponent implements OnChanges {
 
   @Input() outings: Outing[];
-  @Input() property: string; // FIXME restrict
-  @Input() activity?: 'any'; // FIXME restrict
+  @Input() property: Property;
+  @Input() activity?: Activity;
   @Output() ready: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   private data: BarChartDataItem[];
@@ -45,7 +48,7 @@ export class BarChartComponent implements OnChanges {
   }
 
   private outingsToData() {
-    const orderedValues = ratings[this.property] as string[];
+    const orderedValues = ratingsValues[this.property] as string[];
     let propertyMap = new Map<string, number>();
     orderedValues.forEach(value => propertyMap.set(value, 0));
     propertyMap = this.outings

@@ -1,4 +1,4 @@
-export const ratings = {
+export const ratingsValues = {
   rock_free_rating: [
     '2',
     '3a',

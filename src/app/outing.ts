@@ -1,9 +1,12 @@
 import { Area } from './area';
 
+export type Activity = 'skitouring' | 'snow_ice_mixed' | 'mountain_climbing' | 'rock_climbing' | 'ice_climbing' |
+  'hiking' | 'snowshoeing' | 'paragliding' | 'mountain_biking' | 'via_ferrata' | 'slacklining';
+
 export class Outing {
   document_id: number;
 
-  activities: string[];
+  activities: Activity[];
 
   date_start: string;
   date_end: string;
