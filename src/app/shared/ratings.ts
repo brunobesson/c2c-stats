@@ -1,5 +1,5 @@
-export class Ratings {
-  rock_free_rating = [
+export const ratingsValues = {
+  rock_free_rating: [
     '2',
     '3a',
     '3b',
@@ -37,8 +37,8 @@ export class Ratings {
     '9b+',
     '9c',
     '9c+'
-  ];
-  ski_ratings = [
+  ],
+  ski_rating: [
     '1.1',
     '1.2',
     '1.3',
@@ -57,8 +57,8 @@ export class Ratings {
     '5.4',
     '5.5',
     '5.6'
-  ];
-  global_ratings = [
+  ],
+  global_rating: [
     'F',
     'F+',
     'PD-',
@@ -80,11 +80,34 @@ export class Ratings {
     'ED5',
     'ED6',
     'ED7'
-  ];
-  ice_ratings = ['1', '2', '3', '3+', '4', '4+', '5', '5+', '6', '6+', '7', '7+'];
-  via_ferrata_ratings = ['K1', 'K2', 'K3', 'K4', 'K5', 'K6'];
-  hiking_ratings = ['T1', 'T2', 'T3', 'T4', 'T5'];
-  snowshoe_ratings = ['R1', 'R2', 'R3', 'R4', 'R5'];
-  mtb_up_ratings = ['M1', 'M2', 'M3', 'M4', 'M5'];
-  mtb_down_ratings = ['V1', 'V2', 'V3', 'V4', 'V5'];
-}
+  ],
+  labande_global_rating: [
+    'F',
+    'F+',
+    'PD-',
+    'PD',
+    'PD+',
+    'AD-',
+    'AD',
+    'AD+',
+    'D-',
+    'D',
+    'D+',
+    'TD-',
+    'TD',
+    'TD+',
+    'ED-',
+    'ED',
+    'ED+',
+    'ED4',
+    'ED5',
+    'ED6',
+    'ED7'
+  ],
+  ice_rating: [ '1', '2', '3', '3+', '4', '4+', '5', '5+', '6', '6+', '7', '7+' ],
+  via_ferrata_rating: [ 'K1', 'K2', 'K3', 'K4', 'K5', 'K6' ],
+  hiking_rating: [ 'T1', 'T2', 'T3', 'T4', 'T5' ],
+  snowshoe_rating: [ 'R1', 'R2', 'R3', 'R4', 'R5' ],
+  mtb_up_rating: [ 'M1', 'M2', 'M3', 'M4', 'M5' ],
+  mtb_down_rating: [ 'V1', 'V2', 'V3', 'V4', 'V5' ],
+};

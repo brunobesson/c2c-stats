@@ -2,6 +2,7 @@ import {
   Component,
   OnChanges,
   OnInit,
+  HostListener,
   Input,
   ViewChild,
   ElementRef,
@@ -11,9 +12,11 @@ import {
 import {axisBottom, axisLeft, Axis } from 'd3-axis';
 import { scaleLinear, scaleOrdinal, scaleTime, schemeCategory10, ScaleLinear, ScaleTime } from 'd3-scale';
 import { select, Selection } from 'd3-selection';
-import { line } from 'd3-shape';
+import { line, Line } from 'd3-shape';
 import { timeFormat } from 'd3-time-format';
 import * as moment from 'moment';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 import { ElevationChartData, ElevationCoords } from './elevation-chart-data';
 import { Outing } from '../outing';
 
@@ -24,20 +27,35 @@ import { Outing } from '../outing';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ElevationChartComponent implements OnInit, OnChanges {
-  private static readonly referenceYear = 2017;
+  private static readonly referenceYear = 2016; // a bissectile one!
 
-  @ViewChild('elevationChart') private chartContainer: ElementRef;
   @Input() outings: Outing[];
+
+  private resizeSubject = new Subject<number>();
+  private resizeObservable = this.resizeSubject.asObservable().debounceTime(250);
+
+  private el: HTMLDivElement;
   private data: ElevationChartData[] = [];
+
   private chart: Selection<SVGGElement, ElevationChartData, HTMLElement, any>;
   private xScale: ScaleTime<number, number>;
   private yScale: ScaleLinear<number, number>;
   private yAxis: Axis<number | { valueOf(): number }>;
+  private lineGenerator: Line<ElevationCoords>;
   private colorScale = scaleOrdinal<number, string>(schemeCategory10);
   private height = 400;
   private width = 500;
+  private yAxisWidth = 50;
+  private xAxisHeight = 20;
 
-  constructor() {}
+  constructor(elementRef: ElementRef) {
+    this.el = elementRef.nativeElement as HTMLDivElement;
+  }
+
+  @HostListener('window:resize', ['$event.target.innerWidth'])
+  onResize(width: number) {
+    this.resizeSubject.next(width);
+  }
 
   ngOnInit() {
     this.createChart();
@@ -45,6 +63,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
       this.outingsToData();
       this.updateChart();
     }
+    this.resizeObservable.subscribe(() => this.resizeChart());
   }
 
   ngOnChanges(changes: { [key: string]: SimpleChange }) {
@@ -140,7 +159,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
       const currentYear = new Date().getFullYear();
       if (year === currentYear) {
         values.push({
-          date: moment(),
+          date: moment().year(ElevationChartComponent.referenceYear),
           elevation: values[values.length - 1].elevation,
         });
       } else {
@@ -162,15 +181,19 @@ export class ElevationChartComponent implements OnInit, OnChanges {
   }
 
   private createChart() {
-    const element: any = this.chartContainer.nativeElement;
-    const svg = select<HTMLDivElement, ElevationChartData>(element)
+    const chartContainer = select<HTMLElement, any>(this.el).select<HTMLDivElement>('.elevation-chart-container');
+    this.width = chartContainer.node() ? chartContainer.node().getBoundingClientRect().width - this.yAxisWidth : 0;
+    if (this.width === 0) {
+      return;
+    }
+    const svg = chartContainer
       .append('svg')
-      .attr('width', this.width + 70)
-      .attr('height', this.height + 60);
+      .attr('width', this.width + this.yAxisWidth)
+      .attr('height', this.height + this.xAxisHeight);
 
     this.chart = svg
       .append<SVGGElement>('g')
-      .attr('transform', 'translate(40,40)');
+      .attr('transform', `translate(${this.yAxisWidth - 5},0)`);
 
     this.xScale = scaleTime()
       .domain([
@@ -211,7 +234,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
     const rows = wrap
       .selectAll<SVGPathElement, ElevationChartData>('.line')
       .data<ElevationChartData>(d => d, d => d.year.toString());
-    const row = line<ElevationCoords>()
+    this.lineGenerator = line<ElevationCoords>()
       .x(d => this.xScale(d.date.toDate()))
       .y(d => this.yScale(d.elevation));
     rows
@@ -225,7 +248,18 @@ export class ElevationChartComponent implements OnInit, OnChanges {
       .attr('stroke-linecap', 'round')
       .attr('stroke-width', 1.5)
       .merge(rows)
-      .attr('d', d => row(d.values));
+      .attr('d', d => this.lineGenerator(d.values));
     rows.exit().remove();
+  }
+
+  private resizeChart() {
+    const chartContainer = select<HTMLElement, any>(this.el).select<HTMLDivElement>('.elevation-chart-container');
+    this.width = chartContainer.node() ? chartContainer.node().getBoundingClientRect().width - this.yAxisWidth : 0;
+
+    chartContainer.select<SVGElement>('svg').attr('width', this.width + this.yAxisWidth);
+    this.xScale.rangeRound([0, this.width]);
+    this.chart.select('g.x.axis').call(axisBottom(this.xScale).tickFormat(timeFormat('%B')));
+    this.lineGenerator.x(d => this.xScale(d.date.toDate()));
+    this.chart.selectAll<SVGPathElement, ElevationChartData>('.line').attr('d', d => this.lineGenerator(d.values));
   }
 }

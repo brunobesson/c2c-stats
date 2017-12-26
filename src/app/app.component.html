@@ -30,24 +30,30 @@
         <a href="//www.camptocamp.org/profiles/{{user.document_id}}">{{user.name}} ({{user.forum_username}})</a>
         has entered {{data.length}} outings.
       </p>
+      <app-activities-line-chart [outings]="data"></app-activities-line-chart>
     </mat-card>
 
     <mat-card *ngIf="showCharts">
       <mat-card-header>
-        <mat-card-title>Total accumulated elevation</mat-card-title>
+        <mat-card-title>General information</mat-card-title>
       </mat-card-header>
       <mat-card-content>
+        <h2>Total accumulated elevation</h2>
         <app-elevation-chart [outings]="data"></app-elevation-chart>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card *ngIf="showCharts">
-      <mat-card-header>
-        <mat-card-title>Areas</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+        <h2>Areas</h2>
         <app-areas-chart [outings]="data"></app-areas-chart>
       </mat-card-content>
     </mat-card>
+
+    <ng-container *ngFor="let activity of activities">
+      <mat-card *ngIf="showCharts">
+        <mat-card-header>{{activity.name}}</mat-card-header>
+        <mat-card-content>
+          <ng-container *ngFor="let property of activity.properties">
+              <app-bar-chart [outings]="data" [property]="property" [activity]="activity.name"></app-bar-chart>
+          </ng-container>
+        </mat-card-content>
+      </mat-card>
+    </ng-container>
   </div>
 </div>

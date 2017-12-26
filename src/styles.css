@@ -1,5 +1,7 @@
 @import '~https://fonts.googleapis.com/icon?family=Material+Icons';
 @import '~@angular/material/prebuilt-themes/indigo-pink.css';
+@import '../node_modules/britecharts/dist/css/common/common.min.css';
+@import '../node_modules/britecharts/dist/css/charts/bar.min.css';
 
 body {
   margin: 0;
@@ -7,7 +9,8 @@ body {
 }
 
 mat-card { /* stylelint-disable-line selector-type-no-unknown */
-  max-width: 90%;
+  width: 90%;
+  max-width: 1000px;
   margin: 2em auto;
   text-align: center;
 }

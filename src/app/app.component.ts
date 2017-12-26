@@ -10,6 +10,7 @@ import { Outing } from './outing';
 import { LoginDialogComponent } from './login-dialog/login-dialog.component';
 import { Status } from './status';
 import { User } from './user';
+import { activities as acts } from './shared/activities';
 
 @Component({
   selector: 'app-root',
@@ -22,6 +23,8 @@ export class AppComponent {
   data: Outing[] = [];
   dataStatus: Status = 'initial';
   showCharts = false;
+
+  activities = acts;
 
   constructor(
     public dialog: MatDialog,
