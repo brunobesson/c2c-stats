@@ -2,6 +2,7 @@ import {
   Component,
   OnChanges,
   OnInit,
+  HostListener,
   Input,
   ViewChild,
   ElementRef,
@@ -15,7 +16,7 @@ import { line, Line } from 'd3-shape';
 import { timeFormat } from 'd3-time-format';
 import * as moment from 'moment';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/fromEvent';
+import { Subject } from 'rxjs/Subject';
 import { ElevationChartData, ElevationCoords } from './elevation-chart-data';
 import { Outing } from '../outing';
 
@@ -29,6 +30,9 @@ export class ElevationChartComponent implements OnInit, OnChanges {
   private static readonly referenceYear = 2016; // a bissectile one!
 
   @Input() outings: Outing[];
+
+  private resizeSubject = new Subject<number>();
+  private resizeObservable = this.resizeSubject.asObservable().debounceTime(250);
 
   private el: HTMLDivElement;
   private data: ElevationChartData[] = [];
@@ -45,10 +49,12 @@ export class ElevationChartComponent implements OnInit, OnChanges {
   private xAxisHeight = 20;
 
   constructor(elementRef: ElementRef) {
-    Observable.fromEvent(window, 'resize')
-      .debounceTime(250)
-      .subscribe(() => this.resizeChart());
     this.el = elementRef.nativeElement as HTMLDivElement;
+  }
+
+  @HostListener('window:resize', ['$event.target.innerWidth'])
+  onResize(width: number) {
+    this.resizeSubject.next(width);
   }
 
   ngOnInit() {
@@ -57,6 +63,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
       this.outingsToData();
       this.updateChart();
     }
+    this.resizeObservable.subscribe(() => this.resizeChart());
   }
 
   ngOnChanges(changes: { [key: string]: SimpleChange }) {
