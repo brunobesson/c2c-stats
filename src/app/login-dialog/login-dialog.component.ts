@@ -8,10 +8,12 @@ import { Credentials } from './credentials';
   styleUrls: ['./login-dialog.component.css'],
 })
 export class LoginDialogComponent implements OnInit {
-  model: Credentials = {
+
+  public model: Credentials = {
     username: '',
     password: '',
   };
+
   constructor(public dialogRef: MatDialogRef<LoginDialogComponent>) {}
 
   ngOnInit() {}

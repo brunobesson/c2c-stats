@@ -1,15 +1,17 @@
-<form #form="ngForm">
+<form #loginForm="ngForm">
   <h1 mat-dialog-title>Login</h1>
   <mat-dialog-content>
-    <mat-input-container class="mat-block">
-      <input matInput placeholder="Username" required type="text" [(ngModel)]="model.username" name="username">
-    </mat-input-container>
-    <mat-input-container class="mat-block">
-      <input matInput placeholder="Password" required type="password" [(ngModel)]="model.password" name="password">
-    </mat-input-container>
+    <mat-form-field class="mat-block">
+      <input matInput placeholder="Username" required type="text" [(ngModel)]="model.username" name="username" #spy1>
+    </mat-form-field>
+    <mat-form-field class="mat-block">
+      <input matInput placeholder="Password" required type="password" [(ngModel)]="model.password" name="password" #spy2>
+    </mat-form-field>
+    <p>{{spy1.className}}</p>
+    <p>{{spy2.className}}</p>
   </mat-dialog-content>
   <mat-dialog-actions>
     <button type="button" mat-button mat-dialog-close>Cancel</button>
-    <button type="button" mat-raised-button [disabled]="!form.form.valid" (click)="onSubmit()">Login</button>
+    <button type="button" mat-raised-button [disabled]="!loginForm.form.valid" (click)="onSubmit()">Login</button>
   </mat-dialog-actions>
 </form>
