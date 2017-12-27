@@ -2,13 +2,11 @@
   <h1 mat-dialog-title>Login</h1>
   <mat-dialog-content>
     <mat-form-field class="mat-block">
-      <input matInput placeholder="Username" required type="text" [(ngModel)]="model.username" name="username" #spy1>
+      <input matInput placeholder="Username" required type="text" [(ngModel)]="model.username" name="username">
     </mat-form-field>
     <mat-form-field class="mat-block">
-      <input matInput placeholder="Password" required type="password" [(ngModel)]="model.password" name="password" #spy2>
+      <input matInput placeholder="Password" required type="password" [(ngModel)]="model.password" name="password">
     </mat-form-field>
-    <p>{{spy1.className}}</p>
-    <p>{{spy2.className}}</p>
   </mat-dialog-content>
   <mat-dialog-actions>
     <button type="button" mat-button mat-dialog-close>Cancel</button>
