@@ -40,8 +40,11 @@ export class AppComponent {
     const dialogRef = this.dialog.open(LoginDialogComponent);
     dialogRef
       .afterClosed()
-      .subscribe(credentials =>
-        this.auth.login(credentials, this.handleLoginError)
+      .subscribe(credentials => {
+          if (credentials) {
+            this.auth.login(credentials, this.handleLoginError);
+          }
+        }
       );
   }
 
