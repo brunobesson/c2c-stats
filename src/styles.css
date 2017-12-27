@@ -21,3 +21,9 @@ mat-card { /* stylelint-disable-line selector-type-no-unknown */
   right: 20px;
   color: white;
 }
+
+/* override charts styles */
+
+.tick text {
+  font-size: 0.9rem !important;
+}

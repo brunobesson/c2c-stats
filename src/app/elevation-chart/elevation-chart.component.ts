@@ -9,10 +9,11 @@ import {
   SimpleChange,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import {axisBottom, axisLeft, Axis } from 'd3-axis';
+import { axisBottom, axisLeft, Axis } from 'd3-axis';
+import { format as d3format } from 'd3-format';
 import { scaleLinear, scaleOrdinal, scaleTime, schemeCategory10, ScaleLinear, ScaleTime } from 'd3-scale';
-import { select, Selection } from 'd3-selection';
-import { line, Line } from 'd3-shape';
+import { select as d3select, Selection } from 'd3-selection';
+import { line as d3line, Line } from 'd3-shape';
 import { timeFormat } from 'd3-time-format';
 import * as moment from 'moment';
 import { Observable } from 'rxjs/Observable';
@@ -45,7 +46,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
   private colorScale = scaleOrdinal<number, string>(schemeCategory10);
   private height = 400;
   private width = 500;
-  private yAxisWidth = 50;
+  private yAxisWidth = 60;
   private xAxisHeight = 20;
 
   constructor(elementRef: ElementRef) {
@@ -181,7 +182,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
   }
 
   private createChart() {
-    const chartContainer = select<HTMLElement, any>(this.el).select<HTMLDivElement>('.elevation-chart-container');
+    const chartContainer = d3select<HTMLElement, any>(this.el).select<HTMLDivElement>('.elevation-chart-container');
     this.width = chartContainer.node() ? chartContainer.node().getBoundingClientRect().width - this.yAxisWidth : 0;
     if (this.width === 0) {
       return;
@@ -202,7 +203,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
       ])
       .rangeRound([0, this.width]);
     this.yScale = scaleLinear().range([this.height, 0]);
-    this.yAxis = axisLeft(this.yScale);
+    this.yAxis = axisLeft(this.yScale).tickFormat(d3format('>-d'));
 
     this.chart.append('g').attr('class', 'y axis').call(this.yAxis);
     this.chart
@@ -234,7 +235,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
     const rows = wrap
       .selectAll<SVGPathElement, ElevationChartData>('.line')
       .data<ElevationChartData>(d => d, d => d.year.toString());
-    this.lineGenerator = line<ElevationCoords>()
+    this.lineGenerator = d3line<ElevationCoords>()
       .x(d => this.xScale(d.date.toDate()))
       .y(d => this.yScale(d.elevation));
     rows
@@ -253,7 +254,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
   }
 
   private resizeChart() {
-    const chartContainer = select<HTMLElement, any>(this.el).select<HTMLDivElement>('.elevation-chart-container');
+    const chartContainer = d3select<HTMLElement, any>(this.el).select<HTMLDivElement>('.elevation-chart-container');
     this.width = chartContainer.node() ? chartContainer.node().getBoundingClientRect().width - this.yAxisWidth : 0;
 
     chartContainer.select<SVGElement>('svg').attr('width', this.width + this.yAxisWidth);
