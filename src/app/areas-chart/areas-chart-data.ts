@@ -1,4 +1,4 @@
 export class AreasChartData {
-  area: string;
-  count: number;
+  name: string;
+  value: number;
 }

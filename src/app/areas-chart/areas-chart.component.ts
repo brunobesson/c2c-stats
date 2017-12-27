@@ -1,16 +1,15 @@
 import {
   Component,
   OnChanges,
-  OnInit,
   Input,
-  ViewChild,
   ElementRef,
   SimpleChange,
   ChangeDetectionStrategy
 } from '@angular/core';
 import { select } from 'd3-selection';
-import { scaleOrdinal, schemeCategory20 } from 'd3-scale';
-import { arc, pie, PieArcDatum } from 'd3-shape';
+import { Observable } from 'rxjs/Observable';
+import * as barChart from 'britecharts/dist/umd/bar.min';
+import * as miniTooltip from 'britecharts/dist/umd/miniTooltip.min';
 import { AreasChartData } from './areas-chart-data';
 import { Outing } from '../outing';
 import { Locale } from '../locale';
@@ -21,42 +20,36 @@ import { Locale } from '../locale';
   styleUrls: ['./areas-chart.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AreasChartComponent implements OnInit, OnChanges {
+export class AreasChartComponent implements OnChanges {
 
-  @ViewChild('areasChart') private chartContainer: ElementRef;
   @Input() outings: Outing[];
   private data: AreasChartData[] = [];
+  private el: HTMLElement;
 
-  constructor() { }
-
-  ngOnInit() {
-    this.createChart();
-    if (this.outings) {
-      this.outingsToData();
-      this.updateChart();
-    }
+  constructor(elementRef: ElementRef) {
+    Observable.fromEvent(window, 'resize')
+      .debounceTime(250)
+      .subscribe(() => this.redrawChart());
+    this.el = elementRef.nativeElement;
   }
 
-  ngOnChanges(changes: {[key: string]: SimpleChange}) {
-    if (changes['outings'].isFirstChange()) {
-      return;
-    }
+  ngOnChanges(changes: { [key: string]: SimpleChange }) {
     if (this.outings) {
       this.outingsToData();
-      this.updateChart();
+      this.drawChart();
     }
   }
 
   private inc(data: AreasChartData[], key: string): void {
-    let index = data.findIndex(element => element.area === key);
+    let index = data.findIndex(element => element.name === key);
     if (index === -1) {
       data.push({
-        area: key,
-        count: 0
+        name: key,
+        value: 0
       });
       index = data.length - 1;
     }
-    data[index].count += 1;
+    data[index].value += 1;
   }
 
   private bestName(locales: Locale[]): string {
@@ -84,63 +77,61 @@ export class AreasChartComponent implements OnInit, OnChanges {
         return acc;
       }, new Array<AreasChartData>())
       .reduce((acc: Map<string, number>, slide: AreasChartData) => {
-        if (slide.area === 'Others' || slide.count / this.outings.length < 0.02) {
-          acc.set('Others', (acc.get('Others') || 0) + slide.count);
+        if (slide.name === 'Others' || slide.value / this.outings.length < 0.02) {
+          acc.set('Others', (acc.get('Others') || 0) + slide.value);
         } else {
-          acc.set(slide.area, slide.count);
+          acc.set(slide.name, slide.value);
         }
         return acc;
       }, new Map<string, number>())
       .forEach((value, key) => this.data.push({
-        area: key,
-        count: value
+        name: key,
+        value
       }));
+      this.data.sort((a, b) => {
+        if (a.name === 'Others') {
+          return -1;
+        }
+        if (b.name === 'Others') {
+          return 1;
+        }
+        return a.value - b.value;
+      });
   }
 
-  private createChart() {
-    const width = 960;
-    const height = 450;
-    const radius = Math.min(width, height) / 2;
+  private drawChart() {
+    const bar = barChart();
+    const tooltip = miniTooltip();
 
-    const element: string = this.chartContainer.nativeElement;
-    const svg = select<HTMLDivElement, AreasChartData>(element)
-      .append('svg')
-        .attr('width', width)
-        .attr('height', height)
-      .append('g');
+    const barContainer = select<HTMLElement, any>(this.el).select<HTMLDivElement>('.areas-chart-container');
+    const containerWidth = barContainer.node() ? barContainer.node().getBoundingClientRect().width : false;
 
+    if (containerWidth) {
+      const margin = {
+        top: 20,
+        right: 20,
+        bottom: 30,
+        left: 200
+      };
+      bar.margin(margin);
+      bar.width(containerWidth);
+      // ensure an height based on the number of bars -- all bars same height
+      bar.height(margin.top + margin.bottom + this.data.length * 20);
+      bar.isHorizontal(true);
 
-    const pieGenerator = pie<AreasChartData>()
-      .sort(null) // FIXME?
-      .value(d => d.count);
+      bar.on('customMouseOver', tooltip.show);
+      bar.on('customMouseMove', tooltip.update);
+      bar.on('customMouseOut', tooltip.hide);
 
-    const arcGenerator = arc<PieArcDatum<AreasChartData>>()
-      .outerRadius(radius * 0.8)
-      .innerRadius(radius * 0.4);
+      barContainer.datum(this.data).call(bar);
 
-    svg.attr('transform', `translate(${width / 2},${height / 2})`);
-
-    const color = scaleOrdinal<string, string>(schemeCategory20);
-
-    const g = svg.selectAll<SVGGElement, PieArcDatum<AreasChartData>>('.arc')
-      .data<PieArcDatum<AreasChartData>>(pieGenerator(this.data))
-      .enter().append<SVGGElement>('g')
-      .attr('class', 'arc');
-
-    g.append<SVGPathElement>('path')
-      .attr('d', arcGenerator)
-      .style('fill', d => color(d.data.area));
-
-    g.append<SVGTextElement>('text')
-      .attr('transform', d => `translate(${arcGenerator.centroid(d)})`)
-      .attr('dy', '.35em')
-      .text(d => d.data.area + '>' + d.data.count);
+      const tooltipContainer = select(this.el).select('.areas-chart-container .metadata-group');
+      tooltipContainer.datum(this.data).call(tooltip);
+    }
   }
 
-  private updateChart() {
-    // TODO
-    const element: string = this.chartContainer.nativeElement;
-    select(element).select('svg').remove();
-    this.createChart();
+  private redrawChart() {
+    select(this.el).selectAll('.bar-chart').remove();
+    this.drawChart();
   }
 }

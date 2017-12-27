@@ -29,9 +29,6 @@ export class BarChartComponent implements OnChanges {
   private data: BarChartDataItem[];
 
   private el: HTMLElement;
-  public bar: any;
-  public tooltip: any;
-  public tooltipContainer: any;
 
   constructor(elementRef: ElementRef) {
     Observable.fromEvent(window, 'resize')
@@ -65,15 +62,14 @@ export class BarChartComponent implements OnChanges {
       }, propertyMap);
 
     // fill map with missing values
-
     this.data = [];
     propertyMap.forEach((value, name) => this.data.push({ name, value }));
     this.data.sort((a, b) => orderedValues.indexOf(b.name) - orderedValues.indexOf(a.name));
   }
 
   private drawChart() {
-    this.bar = barChart();
-    this.tooltip = miniTooltip();
+    const bar = barChart();
+    const tooltip = miniTooltip();
 
     const barContainer = select<HTMLElement, any>(this.el).select<HTMLDivElement>('.bar-chart-container');
     const containerWidth = barContainer.node() ? barContainer.node().getBoundingClientRect().width : false;
@@ -85,20 +81,20 @@ export class BarChartComponent implements OnChanges {
         bottom: 30,
         left: 40
       };
-      this.bar.margin(margin);
-      this.bar.width(containerWidth);
+      bar.margin(margin);
+      bar.width(containerWidth);
       // ensure an height based on the number of bars -- all bars same height
-      this.bar.height(margin.top + margin.bottom + this.data.length * 20);
-      this.bar.isHorizontal(true);
+      bar.height(margin.top + margin.bottom + this.data.length * 20);
+      bar.isHorizontal(true);
 
-      this.bar.on('customMouseOver', this.tooltip.show);
-      this.bar.on('customMouseMove', this.tooltip.update);
-      this.bar.on('customMouseOut', this.tooltip.hide);
+      bar.on('customMouseOver', tooltip.show);
+      bar.on('customMouseMove', tooltip.update);
+      bar.on('customMouseOut', tooltip.hide);
 
-      barContainer.datum(this.data).call(this.bar);
+      barContainer.datum(this.data).call(bar);
 
-      this.tooltipContainer = select(this.el).select('.bar-chart-container .metadata-group');
-      this.tooltipContainer.datum(this.data).call(this.tooltip);
+      const tooltipContainer = select(this.el).select('.bar-chart-container .metadata-group');
+      tooltipContainer.datum(this.data).call(tooltip);
 
       this.ready.emit(true);
     }

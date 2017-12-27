@@ -8,6 +8,10 @@ body {
   font-family: Roboto, sans-serif;
 }
 
+app-root > div {
+  overflow-x: hidden;
+}
+
 mat-card { /* stylelint-disable-line selector-type-no-unknown */
   width: 90%;
   max-width: 1000px;
