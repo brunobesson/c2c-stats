@@ -1,7 +1,7 @@
 import { Component, OnChanges, Input, Output, EventEmitter, ElementRef, SimpleChange } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
-import { select } from 'd3-selection';
+import { select as d3select } from 'd3-selection';
 import { BarChartDataItem } from './bar-chart-data-item';
 import * as barChart from 'britecharts/dist/umd/bar.min';
 import * as miniTooltip from 'britecharts/dist/umd/miniTooltip.min';
@@ -71,7 +71,7 @@ export class BarChartComponent implements OnChanges {
     const bar = barChart();
     const tooltip = miniTooltip();
 
-    const barContainer = select<HTMLElement, any>(this.el).select<HTMLDivElement>('.bar-chart-container');
+    const barContainer = d3select<HTMLElement, any>(this.el).select<HTMLDivElement>('.bar-chart-container');
     const containerWidth = barContainer.node() ? barContainer.node().getBoundingClientRect().width : false;
 
     if (containerWidth) {
@@ -93,7 +93,7 @@ export class BarChartComponent implements OnChanges {
 
       barContainer.datum(this.data).call(bar);
 
-      const tooltipContainer = select(this.el).select('.bar-chart-container .metadata-group');
+      const tooltipContainer = d3select(this.el).select('.bar-chart-container .metadata-group');
       tooltipContainer.datum(this.data).call(tooltip);
 
       this.ready.emit(true);
@@ -101,7 +101,7 @@ export class BarChartComponent implements OnChanges {
   }
 
   public redrawChart() {
-    select(this.el).selectAll('.bar-chart').remove();
+    d3select(this.el).selectAll('.bar-chart').remove();
     this.drawChart();
   }
 }

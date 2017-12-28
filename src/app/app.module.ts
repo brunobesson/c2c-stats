@@ -28,6 +28,7 @@ import { LoginDialogComponent } from './login-dialog/login-dialog.component';
 import { SearchComponent } from './search/search.component';
 import { ActivitiesLineChartComponent } from './activities-line-chart/activities-line-chart.component';
 import { BarChartComponent } from './bar-chart/bar-chart.component';
+import { ActivityYearBarChartComponent } from './activity-year-bar-chart/activity-year-bar-chart.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import { BarChartComponent } from './bar-chart/bar-chart.component';
     SearchComponent,
     ActivitiesLineChartComponent,
     BarChartComponent,
+    ActivityYearBarChartComponent,
   ],
   entryComponents: [LoginDialogComponent],
   imports: [

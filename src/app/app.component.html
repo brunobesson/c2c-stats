@@ -49,8 +49,9 @@
       <mat-card *ngIf="showCharts">
         <mat-card-header>{{activity.name}}</mat-card-header>
         <mat-card-content>
+          <app-activity-year-bar-chart [outings]="data" [activity]="activity.name"></app-activity-year-bar-chart>
           <ng-container *ngFor="let property of activity.properties">
-              <app-bar-chart [outings]="data" [property]="property" [activity]="activity.name"></app-bar-chart>
+            <app-bar-chart [outings]="data" [property]="property" [activity]="activity.name"></app-bar-chart>
           </ng-container>
         </mat-card-content>
       </mat-card>
