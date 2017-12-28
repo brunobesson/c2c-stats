@@ -41,6 +41,10 @@ export class ActivityYearBarChartComponent implements OnChanges {
     const firstOutingMoment = this.outings
       .map(outing => moment(outing.date_start))
       .sort((a, b) => a.valueOf() - b.valueOf())[0];
+    // ensure at least 8 years to avoid empty graphs
+    if (moment().year() - firstOutingMoment.year() < 8) {
+      firstOutingMoment.year(moment().year() - 8);
+    }
     const firstYear = isFullYear ?
       firstOutingMoment.year() :
       (firstOutingMoment.month() > 8 ? firstOutingMoment.year() : firstOutingMoment.year() - 1);
