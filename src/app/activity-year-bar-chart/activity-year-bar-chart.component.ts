@@ -37,29 +37,55 @@ export class ActivityYearBarChartComponent implements OnChanges {
   }
 
   private outingsToData() {
-    // TODO handle seasons depending on activity
-    const firstYear = this.outings
-      .map(outing => moment(outing.date_start).year())
-      .sort()[0];
-    const lastYear = moment().year();
-    const outingsPerYear = new Map<string, number>();
+    const isFullYear = this.isFullYear();
+    const firstOutingMoment = this.outings
+      .map(outing => moment(outing.date_start))
+      .sort((a, b) => a.valueOf() - b.valueOf())[0];
+    const firstYear = isFullYear ?
+      firstOutingMoment.year() :
+      (firstOutingMoment.month() > 8 ? firstOutingMoment.year() : firstOutingMoment.year() - 1);
+    const lastYear = isFullYear ? moment().year() : (moment().month() > 8 ? moment().year() : moment().year() - 1);
+    const outingsPerSeason = new Map<string, number>();
     for (let y = firstYear; y <= lastYear; y++) {
-      outingsPerYear.set(y.toString(), 0);
+      outingsPerSeason.set(isFullYear ? y.toString() : `${y.toString()}/${(y + 1).toString()}`, 0);
     }
     this.outings
       .filter(outing => outing.activities.includes(this.activity))
       .reduce((map, outing) => {
-        const year = moment(outing.date_start).year().toString();
-        map.set(year, map.get(year) + 1);
+        const season = this.season(outing.date_start);
+        map.set(season, map.get(season) + 1);
         return map;
-      }, outingsPerYear);
+      }, outingsPerSeason);
     this.data = [];
-    outingsPerYear.forEach((count, year) => {
+    outingsPerSeason.forEach((count, season) => {
       this.data.push({
-        name: year,
+        name: season,
         value: count
       });
     });
+  }
+
+  private isFullYear() {
+    switch (this.activity) {
+      case 'skitouring':
+      case 'ice_climbing':
+      case 'snowshoeing':
+        return false;
+      default:
+        return true;
+    }
+  }
+
+  private season(date: string) {
+    const m = moment(date);
+    switch (this.activity) {
+      case 'skitouring':
+      case 'ice_climbing':
+      case 'snowshoeing':
+        return m.month() > 8 ? `${m.year()}/${m.year() + 1}` : `${m.year() - 1}/${m.year()}`;
+      default:
+        return m.year().toString();
+    }
   }
 
   private drawChart() {
