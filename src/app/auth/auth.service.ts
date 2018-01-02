@@ -18,7 +18,7 @@ export class AuthService {
 
           localStorage.setItem('authenticated-user', JSON.stringify({
             document_id: resp.id,
-            name: resp.username,
+            name: resp.name,
             forum_username: resp.forum_username
           }));
           return resp;
