@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material';
 
 import 'rxjs/add/operator/debounceTime';
@@ -18,7 +18,7 @@ import { activities as acts } from './shared/activities';
   styleUrls: ['./app.component.css'],
   providers: [C2cDataService],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   user: User;
   data: Outing[] = [];
   dataStatus: Status = 'initial';
@@ -32,6 +32,12 @@ export class AppComponent {
     private c2cDataService: C2cDataService
   ) {}
 
+  ngOnInit() {
+    if (this.auth.authenticated) {
+      this.getC2cData(this.auth.user);
+    }
+  }
+
   logout(): void {
     this.auth.logout();
   }
@@ -42,7 +48,7 @@ export class AppComponent {
       .afterClosed()
       .subscribe(credentials => {
           if (credentials) {
-            this.auth.login(credentials, this.handleLoginError);
+            this.auth.login(credentials).subscribe(resp => this.getC2cData(this.auth.user), this.handleLoginError);
           }
         }
       );
