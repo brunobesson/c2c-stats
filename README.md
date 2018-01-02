@@ -6,13 +6,14 @@
 Let's play with angular and build c2c statistics viewers
 ## TODO
 
-* More charts
+* More charts:
+  * Elevation chart for each activity
 * Translations
 * Choose best language base on logged in user
 * AOT in prod?
 * handle errors when autocomplete or data retrieval fails
 * better layout (use card only for graph sections)
-* cache using webstorage
+* cache using webstorage?
 * maybe web workers?
 * Unit tests
 * SSO
