@@ -1,6 +1,7 @@
 # c2c-stats
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/brunobesson/c2c-stats.svg)](https://greenkeeper.io/)
+[![Build Status](https://travis-ci.org/brunobesson/c2c-stats.svg?branch=master)](https://travis-ci.org/brunobesson/c2c-stats)
 [![Known Vulnerabilities](https://snyk.io/test/github/brunobesson/c2c-stats/badge.svg)](https://snyk.io/test/github/brunobesson/c2c-stats)
 
 Let's play with angular and build c2c statistics viewers
