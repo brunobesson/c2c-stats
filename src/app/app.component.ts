@@ -22,15 +22,14 @@ export class AppComponent implements OnInit {
   user: User;
   data: Outing[] = [];
   dataStatus: Status = 'initial';
-  showCharts = false;
 
   activities = acts;
+  showCharts = false;
+  showActivity = {};
 
-  constructor(
-    public dialog: MatDialog,
-    public auth: AuthService,
-    private c2cDataService: C2cDataService
-  ) {}
+  constructor(public dialog: MatDialog, public auth: AuthService, private c2cDataService: C2cDataService) {
+    this.activities.map(activity => activity.name).forEach(activity => this.showActivity[activity] = false);
+  }
 
   ngOnInit() {
     if (this.auth.authenticated) {
@@ -70,6 +69,12 @@ export class AppComponent implements OnInit {
         this.user = user;
         this.data = data.outings;
         this.showCharts = this.data.length > 0;
+
+        this.activities.map(activity => activity.name).forEach(activity => this.showActivity[activity] = false);
+        data.outings
+          .map(outing => outing.activities)
+          .reduce((o1, o2) => o1.concat(o2), [])
+          .forEach(activity => this.showActivity[activity] = true);
       }
       this.dataStatus = data.status;
     });
