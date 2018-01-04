@@ -19,7 +19,7 @@ import * as moment from 'moment';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { ElevationChartData, ElevationCoords } from './elevation-chart-data';
-import { Outing } from '../outing';
+import { Outing, Activity } from '../outing';
 
 @Component({
   selector: 'app-elevation-chart',
@@ -31,6 +31,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
   private static readonly referenceYear = 2016; // a bissectile one!
 
   @Input() outings: Outing[];
+  @Input() activity?: Activity;
 
   private resizeSubject = new Subject<number>();
   private resizeObservable = this.resizeSubject.asObservable().debounceTime(250);
@@ -87,6 +88,7 @@ export class ElevationChartComponent implements OnInit, OnChanges {
     // first, add per year (TODO and later maybe per season)
     const outingsForYear = this.outings
       .filter(outing => outing.height_diff_up)
+      .filter(outing => this.activity == null || outing.activities.includes(this.activity))
       .reduce((acc: Map<number, Outing[]>, outing: Outing) => {
         const startYear = Number(outing.date_start.substr(0, 4));
         const endYear = Number(outing.date_end.substr(0, 4));
