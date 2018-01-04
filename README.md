@@ -7,8 +7,7 @@
 Let's play with angular and build c2c statistics viewers
 ## TODO
 
-* More charts:
-  * Elevation chart for each activity
+* Interactive elevation charts with legend
 * Translations
 * Choose best language base on logged in user
 * AOT in prod?
